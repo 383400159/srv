@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "server.vcxproj", "{2A27C1B4-76A3-49DA-ACC3-140884FB858D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua5.1", "lua5.1\lua5.1.vcxproj", "{FB3A499B-983C-4107-9CDB-7C7A29D01A92}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tolua++", "tolua++\tolua++.vcxproj", "{3C57BE20-FC0F-4A36-8B96-68F842AA0F8F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{EF3A4802-A5DC-4BC8-BD6D-8EB6E1346924}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2A27C1B4-76A3-49DA-ACC3-140884FB858D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2A27C1B4-76A3-49DA-ACC3-140884FB858D}.Debug|Win32.Build.0 = Debug|Win32
+		{2A27C1B4-76A3-49DA-ACC3-140884FB858D}.Release|Win32.ActiveCfg = Release|Win32
+		{2A27C1B4-76A3-49DA-ACC3-140884FB858D}.Release|Win32.Build.0 = Release|Win32
+		{FB3A499B-983C-4107-9CDB-7C7A29D01A92}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FB3A499B-983C-4107-9CDB-7C7A29D01A92}.Debug|Win32.Build.0 = Debug|Win32
+		{FB3A499B-983C-4107-9CDB-7C7A29D01A92}.Release|Win32.ActiveCfg = Release|Win32
+		{FB3A499B-983C-4107-9CDB-7C7A29D01A92}.Release|Win32.Build.0 = Release|Win32
+		{3C57BE20-FC0F-4A36-8B96-68F842AA0F8F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3C57BE20-FC0F-4A36-8B96-68F842AA0F8F}.Debug|Win32.Build.0 = Debug|Win32
+		{3C57BE20-FC0F-4A36-8B96-68F842AA0F8F}.Release|Win32.ActiveCfg = Release|Win32
+		{3C57BE20-FC0F-4A36-8B96-68F842AA0F8F}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FB3A499B-983C-4107-9CDB-7C7A29D01A92} = {EF3A4802-A5DC-4BC8-BD6D-8EB6E1346924}
+		{3C57BE20-FC0F-4A36-8B96-68F842AA0F8F} = {EF3A4802-A5DC-4BC8-BD6D-8EB6E1346924}
+	EndGlobalSection
+EndGlobal
