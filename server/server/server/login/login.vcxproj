@@ -11,9 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2A27C1B4-76A3-49DA-ACC3-140884FB858D}</ProjectGuid>
-    <RootNamespace>server</RootNamespace>
-    <ProjectName>server</ProjectName>
+    <ProjectGuid>{A0D3B1DE-C94B-48E3-A935-A1E34738EA9A}</ProjectGuid>
+    <RootNamespace>login</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -63,7 +62,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

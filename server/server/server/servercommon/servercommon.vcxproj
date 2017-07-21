@@ -11,9 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2A27C1B4-76A3-49DA-ACC3-140884FB858D}</ProjectGuid>
-    <RootNamespace>server</RootNamespace>
-    <ProjectName>server</ProjectName>
+    <ProjectGuid>{169EAA10-DC6F-447C-B1CF-3C318F80CDFC}</ProjectGuid>
+    <RootNamespace>servercommon</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -63,6 +62,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="INetworkModule.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="INetworkModule.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
