@@ -2,8 +2,19 @@
 
 #ifndef INETWORKMODULE_H
 #define INETWORKMODULE_H
+#pragma comment( lib, "ws2_32.lib") 
 
-
+#ifndef WIN32
+#include <winsock2.h>
+#else
+#include <sys/socket.h>
+#endif
+#include<iostream>
+#include<stdio.h>
+#include<stdlib.h>
+//#include <thread>
+#include <vector>
+#include <map>
 static const char NETWORK_MODULE[] = "NetworkModule";
 
 typedef	unsigned int		NetID;
@@ -51,6 +62,7 @@ public:
 
 class INetworkModule 
 {
+public:
 	INetworkModule();
 	~INetworkModule();
 public:
@@ -135,6 +147,15 @@ public:
 	 @netid			Òª¶Ï¿ªµÄÍøÂçid
 	*/
 	 void Disconnect(NetID netid);
+
+
+private:
+	SOCKET SocketID;
+	fd_set fdread;
+	timeval fd_tv;
+	struct sockaddr_in init_server;
+
+	std::map<SOCKET,IEngineNetCallback*> AcceptMapList;
 };
 
 #endif
