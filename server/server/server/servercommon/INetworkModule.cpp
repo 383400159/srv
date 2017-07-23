@@ -89,13 +89,16 @@ bool INetworkModule::Send(NetID netid, const char *data, unsigned int length)
 
 int INetworkModule::Update()
 {
+	fd_set fdread;
+	timeval fd_tv;
 
 	FD_ZERO(&fdread);//初始化fd_set
 	FD_SET(SocketID,&fdread);///分配套接字句柄到相应的fd_set
-	fd_tv.tv_sec=0.1;//这里我们打算让select等待两秒后返回，避免被锁死，也避免马上返回
+
+	fd_tv.tv_sec=0.0001;//这里我们打算让select等待两秒后返回，避免被锁死，也避免马上返回
 	fd_tv.tv_usec=0;
 	SOCKET  AcceptSocket;
-	select(0,&fdread,NULL,NULL,&fd_tv);
+	auto s_ret =  select(0,&fdread,NULL,NULL,&fd_tv);
 	if (FD_ISSET(SocketID,&fdread)) ///如果套接字句柄还在fd_set里，说明客户端已经有connect的请求发过来了，马上可以accept成功
 	{
 		struct sockaddr_in  accept_server ;
@@ -106,10 +109,34 @@ int INetworkModule::Update()
 		if(iter==AcceptMapList.end()){
 			IEngineNetCallback* callback  = new IEngineNetCallback();
 			AcceptMapList.insert(std::make_pair(AcceptSocket,callback));
-			this->Send(AcceptSocket,"test",10);
+			//this->Send(AcceptSocket,"test",10);
 			callback->OnAccept(init_server.sin_port,AcceptSocket,accept_server.sin_addr.s_addr,accept_server.sin_port);
+			
+			
 		}
 		
+	}
+
+	fd_set clientread;
+	FD_ZERO(&clientread);//初始化fd_set
+
+	//监听是否有消息到达	
+	for (auto it = AcceptMapList.begin();it!=AcceptMapList.end();it++)
+	{
+			FD_SET(it->first,&clientread);///分配套接字句柄到相应的fd_set
+	}
+	auto clent_ret =  select(0,&clientread,NULL,NULL,&fd_tv);
+
+	for (auto it = AcceptMapList.begin();it!=AcceptMapList.end();it++)
+	{
+		if (FD_ISSET(it->first,&clientread))
+		{
+				
+			char buf[100];
+			size_t size = recv(it->first,buf,100,0);				//在读满最大的100个字节之前一直等待
+			auto callback = it->second;
+			callback->OnRecv(it->first,buf,sizeof(buf));
+		}
 	}
 
 	return 0;
@@ -118,6 +145,11 @@ int INetworkModule::Update()
 void IEngineNetCallback::OnAccept(Port listen_port, NetID netid, IP ip, Port port)
 {
 	std::cout<<" listen_port:"<<listen_port<<" netid:"<<netid<<" ip"<<ip<<" port"<<port<<std::endl;
+}
+
+void IEngineNetCallback::OnRecv(NetID netid, const char *data, int length)
+{
+	std::cout<<"netid:"<<netid<<" data:"<<*data<<" length:"<<length<<std::endl;
 }
 
 IEngineNetCallback::IEngineNetCallback()

@@ -151,10 +151,8 @@ public:
 
 private:
 	SOCKET SocketID;
-	fd_set fdread;
-	timeval fd_tv;
-	struct sockaddr_in init_server;
 
+	struct sockaddr_in init_server;
 	std::map<SOCKET,IEngineNetCallback*> AcceptMapList;
 };
 
