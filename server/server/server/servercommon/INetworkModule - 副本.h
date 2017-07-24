@@ -2,19 +2,19 @@
 
 #ifndef INETWORKMODULE_H
 #define INETWORKMODULE_H
-#ifdef _MSC_VER
-#define _WIN32_WINNT 0x0501
+#pragma comment( lib, "ws2_32.lib") 
+
+#ifndef WIN32
+#include <winsock2.h>
+#else
+#include <sys/socket.h>
 #endif
-#include <boost/asio.hpp>
 #include<iostream>
 #include<stdio.h>
 #include<stdlib.h>
+//#include <thread>
 #include <vector>
 #include <map>
-
-using namespace boost::asio;
-
-
 static const char NETWORK_MODULE[] = "NetworkModule";
 
 typedef	unsigned int		NetID;
@@ -150,9 +150,10 @@ public:
 
 
 private:
-	io_service iosev;
-	ip::tcp::acceptor* acceptor;
-	std::map<ip::tcp::socket,IEngineNetCallback*> AcceptMapList;
+	SOCKET SocketID;
+
+	struct sockaddr_in init_server;
+	std::map<SOCKET,IEngineNetCallback*> AcceptMapList;
 };
 
 #endif

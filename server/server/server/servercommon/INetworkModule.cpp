@@ -1,31 +1,24 @@
 #include "INetworkModule.h"
 
 
-extern "C" {
 
-	int write(int,void*,int);
-
-	int read(int,void*,int);
-
-};
 
 INetworkModule::INetworkModule(void)
 {
-	WSADATA wsaData;
-	WSAStartup(MAKEWORD(2,2),&wsaData);//防止socket生成套接字失败
+
 }
 
 
 INetworkModule::~INetworkModule(void)
 {
-	//清除WSADATA
-	WSACleanup();
+
 }
 
 
 
 int INetworkModule::Init()
 {
+
 	return 0;
 }
 
@@ -40,22 +33,39 @@ int INetworkModule::Init()
 bool INetworkModule::Listen(Port port, int backlog, NetID *netid_out, const char *ip_bind)
 {
 
-
-	SocketID = socket(PF_INET,SOCK_STREAM,0); //指定socket的类型
-
-	init_server.sin_family = AF_INET;
-	init_server.sin_addr.s_addr = INADDR_ANY;  //服务端接受任意地址
-	init_server.sin_port = htons(port);
-
-	bind(SocketID,(struct sockaddr * )&init_server,sizeof(init_server)); //设置监听端口号
-	listen(SocketID,backlog);	//监听开始 待机中
-
-
+	// 所有asio类都需要io_service对象
+	acceptor = new ip::tcp::acceptor(iosev, ip::tcp::endpoint(ip::tcp::v4(), port));
 	
+	return true;
+}
 
-
-
-	
+	/*
+	 建立网络连接
+	 @ip			要连接的远端地址
+	 @port			要连接的远端端口号
+	 @netid_out		out参数，连接成功时netid_out为建立连接的网络id号
+	 @time_out		建立网络连接动作的超时时间，单位毫秒，默认为3000
+	 @Return		是否连接成功
+	*/
+bool INetworkModule::Connect(const char *ip, Port port, NetID *netid_out, unsigned long time_out)
+{
+	// socket对象
+	ip::tcp::socket socket(iosev);
+	// 连接端点，这里使用了本机连接，可以修改IP地址测试远程连接
+	ip::tcp::endpoint ep(ip::address_v4::from_string(ip), port);
+	// 连接服务器
+	boost::system::error_code ec;
+	socket.connect(ep,ec);
+	// 如果出错，打印出错信息
+	if(ec)
+	{
+		std::cout << boost::system::system_error(ec).what() << std::endl;
+		return false;
+	}
+	// 接收数据
+	char buf[100];
+	size_t len=socket.read_some(buffer(buf), ec);
+	std::cout.write(buf, len);
 	return true;
 }
 
@@ -70,17 +80,8 @@ bool INetworkModule::Listen(Port port, int backlog, NetID *netid_out, const char
 */
 bool INetworkModule::Send(NetID netid, const char *data, unsigned int length)
 {
-	auto ret = send(netid,data,sizeof(data),0); //正常则写入size个字节的数据
-	if (ret!=-1)
-	{
-		std::cout<<"send ....."<<std::endl;
-		return true;
-	}
-	else
-	{
-		std::cout<<"send bail....."<<std::endl;
-		return false;
-	}
+	
+	return true;
 }
 
 
@@ -89,54 +90,20 @@ bool INetworkModule::Send(NetID netid, const char *data, unsigned int length)
 
 int INetworkModule::Update()
 {
-	fd_set fdread;
-	timeval fd_tv;
+	ip::tcp::socket socket(iosev);
+	// 等待直到客户端连接进来
+	acceptor->accept(socket);
+	// 显示连接进来的客户端
+	std::cout << socket.remote_endpoint().address()<<" "<<socket.remote_endpoint().port()<< std::endl;
+	// 向客户端发送hello world!
+	boost::system::error_code ec;
+	socket.write_some(buffer("hello world!"), ec);
 
-	FD_ZERO(&fdread);//初始化fd_set
-	FD_SET(SocketID,&fdread);///分配套接字句柄到相应的fd_set
-
-	fd_tv.tv_sec=0.0001;//这里我们打算让select等待两秒后返回，避免被锁死，也避免马上返回
-	fd_tv.tv_usec=0;
-	SOCKET  AcceptSocket;
-	auto s_ret =  select(0,&fdread,NULL,NULL,&fd_tv);
-	if (FD_ISSET(SocketID,&fdread)) ///如果套接字句柄还在fd_set里，说明客户端已经有connect的请求发过来了，马上可以accept成功
+	// 如果出错，打印出错信息
+	if(ec)
 	{
-		struct sockaddr_in  accept_server ;
-
-		int len=sizeof(SOCKADDR);
-		AcceptSocket = accept(SocketID,(struct sockaddr * )&accept_server,&len); 
-		auto iter = AcceptMapList.find(AcceptSocket);
-		if(iter==AcceptMapList.end()){
-			IEngineNetCallback* callback  = new IEngineNetCallback();
-			AcceptMapList.insert(std::make_pair(AcceptSocket,callback));
-			//this->Send(AcceptSocket,"test",10);
-			callback->OnAccept(init_server.sin_port,AcceptSocket,accept_server.sin_addr.s_addr,accept_server.sin_port);
-			
-			
-		}
-		
-	}
-
-	fd_set clientread;
-	FD_ZERO(&clientread);//初始化fd_set
-
-	//监听是否有消息到达	
-	for (auto it = AcceptMapList.begin();it!=AcceptMapList.end();it++)
-	{
-			FD_SET(it->first,&clientread);///分配套接字句柄到相应的fd_set
-	}
-	auto clent_ret =  select(0,&clientread,NULL,NULL,&fd_tv);
-
-	for (auto it = AcceptMapList.begin();it!=AcceptMapList.end();it++)
-	{
-		if (FD_ISSET(it->first,&clientread))
-		{
-				
-			char buf[100];
-			size_t size = recv(it->first,buf,100,0);				//在读满最大的100个字节之前一直等待
-			auto callback = it->second;
-			callback->OnRecv(it->first,buf,sizeof(buf));
-		}
+		std::cout << 
+			boost::system::system_error(ec).what() << std::endl;
 	}
 
 	return 0;
