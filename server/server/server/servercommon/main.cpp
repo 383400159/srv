@@ -2,141 +2,42 @@
 #include "INetworkModule.h"
 
 
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <iostream>
-using boost::asio::ip::tcp;
-#define max_len 1024
-
-class clientSession
-	:public boost::enable_shared_from_this<clientSession>
+#include <stdio.h> 
+#include <cstdlib> 
+#include <iostream> 
+#include <boost/thread.hpp> 
+#include <boost/aligned_storage.hpp> 
+#include <boost/array.hpp> 
+#include <boost/bind.hpp> 
+#include <boost/enable_shared_from_this.hpp> 
+#include <boost/noncopyable.hpp> 
+#include <boost/shared_ptr.hpp> 
+#include <boost/asio.hpp> 
+using namespace std; // For atoi. 
+int role_num = 0;
+void handle_accept()
 {
-public:
-	clientSession(boost::asio::io_service& ioservice)
-		:m_socket(ioservice)
-	{
-		memset(data_,'\0',sizeof(data_));
-	}
-	~clientSession()
-	{}
-	tcp::socket& socket()
-	{
-		return m_socket;
-	}
-	void start()
-	{
-		boost::asio::async_write(m_socket,
-			boost::asio::buffer("link successed!"),
-			boost::bind(&clientSession::handle_write,shared_from_this(),
-			boost::asio::placeholders::error));
+	role_num ++ ;
+   cout<<" handle_accept:"<<role_num<<endl;
+}
 
-		/*async_read跟客户端一样，还是不能进入handle_read函数,如果你能找到问题所在，请告诉我，谢谢*/
-		// --已经解决，boost::asio::async_read(...)读取的字节长度不能大于数据流的长度，否则就会进入
-		// ioservice.run()线程等待，read后面的就不执行了。
-		//boost::asio::async_read(m_socket,boost::asio::buffer(data_,max_len),
-
-		//        boost::bind(&clientSession::handle_read,shared_from_this(),
-
-		//        boost::asio::placeholders::error));
-
-
-		//max_len可以换成较小的数字，就会发现async_read_some可以连续接收未收完的数据
-
-		m_socket.async_read_some(boost::asio::buffer(data_,max_len),
-			boost::bind(&clientSession::handle_read,shared_from_this(),
-			boost::asio::placeholders::error));
-	}
-private:
-	void handle_write(const boost::system::error_code& error)
-	{
-
-		if(error)
-		{
-			m_socket.close();
-		}
-
-	}
-	void handle_read(const boost::system::error_code& error)
-	{
-
-		if(!error)
-		{
-			std::cout << data_ << std::endl;
-			//boost::asio::async_read(m_socket,boost::asio::buffer(data_,max_len),
-
-			//    boost::bind(&clientSession::handle_read,shared_from_this(),
-
-			//    boost::asio::placeholders::error));
-
-			m_socket.async_read_some(boost::asio::buffer(data_,max_len),
-				boost::bind(&clientSession::handle_read,shared_from_this(),
-				boost::asio::placeholders::error));
-		}
-		else
-		{
-			m_socket.close();
-		}
-
-	}
-private:
-	tcp::socket m_socket;
-	char data_[max_len];
-};
-
-
-class serverApp
+void start()
 {
-	typedef boost::shared_ptr<clientSession> session_ptr;
-public:
-	serverApp(boost::asio::io_service& ioservice,tcp::endpoint& endpoint)
-		:m_ioservice(ioservice),
-		acceptor_(ioservice,endpoint)
-	{
-		session_ptr new_session(new clientSession(ioservice));
-		acceptor_.async_accept(new_session->socket(),
-			boost::bind(&serverApp::handle_accept,this,boost::asio::placeholders::error,
-			new_session));
-	}
-	~serverApp()
-	{
-	}
-private:
-	void handle_accept(const boost::system::error_code& error,session_ptr& session)
-	{
-		if(!error)
-		{
-			std::cout << "get a new client!" << std::endl;
-			//实现对每个客户端的数据处理
-
-			session->start();
-			//在这就应该看出为什么要封session类了吧，每一个session就是一个客户端
-
-			session_ptr new_session(new clientSession(m_ioservice));
-			acceptor_.async_accept(new_session->socket(),
-				boost::bind(&serverApp::handle_accept,this,boost::asio::placeholders::error,
-				new_session));
-		}
-	}
-private:
-	boost::asio::io_service& m_ioservice;
-	tcp::acceptor acceptor_;
-};
+	io_service iosev;
+	ip::tcp::socket socket_(iosev); 
+	// 所有asio类都需要io_service对象
+	ip::tcp::acceptor acceptor_(iosev, ip::tcp::endpoint(ip::tcp::v4(), 19001));
+	acceptor_.async_accept(socket_,boost::bind(&handle_accept));
+	iosev.run();
+}
 
 int main(int argc , char* argv[])
 {
-	boost::asio::io_service myIoService;
-	short port = 19001/*argv[1]*/;
-	//我们用的是inet4
+	boost::thread thrd(&start);
 
-	tcp::endpoint endPoint(tcp::v4(),port);
-	//终端（可以看作sockaddr_in）完成后，就要accept了
+	getchar(); 
+	thrd.join();
 
-	serverApp sa(myIoService,endPoint);
-	//数据收发逻辑
-
-	myIoService.run();
 	return 0;
 }
 
