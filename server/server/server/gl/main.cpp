@@ -236,7 +236,7 @@ public:
 	{ 
 		char* data_stream = &(*buffers->begin()); 
 		// in here finish the work. 
-		std::cout << "receive :" << bytes_transferred << " bytes." << 
+		std::cout<<" port:"<<socket_.remote_endpoint().port() << "receive :" << bytes_transferred << " bytes." << 
 			"message :" << data_stream << std::endl; 
 	} 
 
@@ -264,6 +264,7 @@ public:
 		, io_service_work_pool_(io_service_pool_size) 
 		, acceptor_(io_service_pool_.get_io_service(), tcp::endpoint(tcp::v4(), port)) 
 	{ 
+		std::cout<<" start server..."<<std::endl;
 		session_ptr new_session(new session(io_service_work_pool_.get_io_service()
 			, io_service_pool_.get_io_service())); 
 		acceptor_.async_accept(new_session->socket(), 
@@ -271,13 +272,17 @@ public:
 			boost::asio::placeholders::error)); 
 	} 
 
-	void handle_accept(session_ptr new_session, 
+	void handle_accept(session_ptr callback_session, 
 		const boost::system::error_code& error) 
 	{ 
 		if (!error) 
 		{ 
-			new_session->start(); 
-			new_session.reset(new session(io_service_work_pool_.get_io_service()
+			
+
+			callback_session->start(); 
+			session_list.push_back(callback_session);
+			std::cout<<" new client:"<< callback_session->socket().remote_endpoint().address()<<" "<<callback_session->socket().remote_endpoint().port()<< std::endl;
+			session_ptr new_session(new session(io_service_work_pool_.get_io_service()
 				, io_service_pool_.get_io_service())); 
 			acceptor_.async_accept(new_session->socket(), 
 				boost::bind(&server::handle_accept, this, new_session, 
@@ -308,6 +313,7 @@ private:
 	io_service_pool io_service_pool_; 
 	io_service_pool io_service_work_pool_; 
 	tcp::acceptor acceptor_; 
+	std::vector<session_ptr> session_list;
 }; 
 
 int main(int argc, char* argv[]) 
@@ -316,7 +322,7 @@ int main(int argc, char* argv[])
 	{ 
 
 		using namespace std; // For atoi. 
-		server s(19001, 8); 
+		server s(19001, 1); 
 
 		s.run(); 
 
