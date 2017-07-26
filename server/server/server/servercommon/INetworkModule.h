@@ -6,6 +6,10 @@
 #define _WIN32_WINNT 0x0501
 #endif
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/thread.hpp> 
 #include<iostream>
 #include<stdio.h>
 #include<stdlib.h>
@@ -16,10 +20,12 @@ using namespace boost::asio;
 
 
 static const char NETWORK_MODULE[] = "NetworkModule";
-
+class INetworkSession;
 typedef	unsigned int		NetID;
 typedef unsigned int		IP;
 typedef unsigned short		Port;
+typedef boost::shared_ptr<ip::tcp::socket> socket_ptr;
+typedef boost::shared_ptr<INetworkSession> session_ptr;
 
 class IEngineNetCallback
 {
@@ -60,6 +66,36 @@ public:
 	void OnConnect(bool result, int handle, NetID netid, IP ip, Port port);
 };
 
+//绑定玩家类 一个session就是一个玩家
+class INetworkSession: public boost::enable_shared_from_this<INetworkSession> 
+{
+public: 
+	INetworkSession(boost::asio::io_service& io_service) 
+		: socket_(io_service) 
+	{ 
+	
+	} 
+
+	//返回当前的操作对象
+	inline ip::tcp::socket& socket() { return socket_; } 
+
+	//开始监听消息到来
+	void start() ;
+	//读取消息回调
+	void handle_read(const boost::system::error_code& error, size_t bytes_transferred) ;
+	//写入消息回调
+	void handle_write(const boost::system::error_code& error) ;
+
+	void on_receive(boost::shared_ptr<std::vector<char> > buffers, size_t bytes_transferred) ;
+
+
+private: 
+
+	// The socket used to communicate with the client. 
+	ip::tcp::socket socket_; 
+
+};
+
 class INetworkModule 
 {
 public:
@@ -72,6 +108,7 @@ public:
 	 int Stop();
 	 int Release();
 	 void Free();
+	 void Run();
 
 	/*
 	 注册网络消息回调
@@ -148,11 +185,18 @@ public:
 	*/
 	 void Disconnect(NetID netid);
 
+	 /*
+	 异步链接回调
+	 */
+	 void handle_accept(socket_ptr callback_session, const boost::system::error_code& error); 
 
 private:
-	io_service iosev;
-	ip::tcp::acceptor* acceptor;
+	boost::asio::io_service io_service_;
+	boost::asio::ip::tcp::acceptor* acceptor_;
+	boost::shared_ptr<boost::thread> io_thread_; 
+
 	std::map<ip::tcp::socket,IEngineNetCallback*> AcceptMapList;
+	IEngineNetCallback* callback_;
 };
 
 #endif

@@ -159,7 +159,7 @@ public:
 		++next_io_service_; 
 		if (next_io_service_ == io_services_.size()) 
 			next_io_service_ = 0; 
-		//std::cout<<" next_io_service_:"<<next_io_service_<<std::endl;
+		std::cout<<" next_io_service_:"<<next_io_service_<<std::endl;
 		return io_service; 
 	} 
 
@@ -262,11 +262,12 @@ public:
 	server(short port, std::size_t io_service_pool_size) 
 		: io_service_pool_(io_service_pool_size) 
 		, io_service_work_pool_(io_service_pool_size) 
-		, acceptor_(io_service_pool_.get_io_service(), tcp::endpoint(tcp::v4(), port)) 
+		, m_work(m_io_service)
+		, acceptor_(m_io_service, tcp::endpoint(tcp::v4(), port)) 
 	{ 
 		std::cout<<" start server..."<<std::endl;
 		session_ptr new_session(new session(io_service_work_pool_.get_io_service()
-			, io_service_pool_.get_io_service())); 
+			,io_service_pool_.get_io_service())); 
 		acceptor_.async_accept(new_session->socket(), 
 			boost::bind(&server::handle_accept, this, new_session, 
 			boost::asio::placeholders::error)); 
@@ -277,8 +278,6 @@ public:
 	{ 
 		if (!error) 
 		{ 
-			
-
 			callback_session->start(); 
 			session_list.push_back(callback_session);
 			std::cout<<" new client:"<< callback_session->socket().remote_endpoint().address()<<" "<<callback_session->socket().remote_endpoint().port()<< std::endl;
@@ -290,28 +289,42 @@ public:
 		} 
 	} 
 
+	void io_run()
+	{
+		m_io_service.run();
+	}
 	void run() 
 	{ 
-		io_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run
+		io_thread_.reset(new boost::thread(boost::bind(&server::io_run
+			, this))); 
+		role_io_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run
 			, &io_service_pool_))); 
-		work_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run
+		role_work_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run
 			, &io_service_work_pool_))); 
 	} 
 
 	void stop() 
 	{ 
+		m_io_service.stop();
 		io_service_pool_.stop(); 
 		io_service_work_pool_.stop(); 
 
-		io_thread_->join(); 
-		work_thread_->join(); 
+		io_thread_->join();
+		role_io_thread_->join(); 
+		role_work_thread_->join(); 
 	} 
 
 private: 
 	boost::shared_ptr<boost::thread> io_thread_; 
-	boost::shared_ptr<boost::thread> work_thread_; 
+	boost::shared_ptr<boost::thread> role_io_thread_; 
+	boost::shared_ptr<boost::thread> role_work_thread_; 
+
 	io_service_pool io_service_pool_; 
 	io_service_pool io_service_work_pool_; 
+	boost::asio::io_service m_io_service;
+	boost::asio::io_service::work m_work;
+
+
 	tcp::acceptor acceptor_; 
 	std::vector<session_ptr> session_list;
 }; 
@@ -322,7 +335,7 @@ int main(int argc, char* argv[])
 	{ 
 
 		using namespace std; // For atoi. 
-		server s(19001, 1); 
+		server s(19001,8); 
 
 		s.run(); 
 

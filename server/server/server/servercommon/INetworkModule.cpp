@@ -11,7 +11,7 @@ INetworkModule::INetworkModule(void)
 
 INetworkModule::~INetworkModule(void)
 {
-
+	this->Stop();
 }
 
 
@@ -22,6 +22,25 @@ int INetworkModule::Init()
 	return 0;
 }
 
+void INetworkModule::Run()
+{
+	io_service_.run();
+}
+int INetworkModule::Stop()
+{
+	io_service_.stop();
+	io_thread_->join();
+
+	return 1;
+}
+int INetworkModule::Start()
+{
+	//新建一个socket 用来等待玩家进来
+	socket_ptr sock(new ip::tcp::socket(io_service_));
+	//INetworkSession* new_session = new INetworkSession(io_service_);
+	acceptor_->async_accept(*sock, boost::bind(&INetworkModule::handle_accept,this,sock,boost::asio::placeholders::error));
+	return 1;
+}
 /*
 	创建监听句柄
 	@port			要监听的端口号
@@ -32,13 +51,27 @@ int INetworkModule::Init()
 */
 bool INetworkModule::Listen(Port port, int backlog, NetID *netid_out, const char *ip_bind)
 {
-
 	// 所有asio类都需要io_service对象
-	acceptor = new ip::tcp::acceptor(iosev, ip::tcp::endpoint(ip::tcp::v4(), port));
-	
+	acceptor_ = new ip::tcp::acceptor(io_service_, ip::tcp::endpoint(ip::tcp::v4(), port));
+	this->Start();
+	//因为io_service.run会堵塞线程 所以用一个线程来防堵塞
+	io_thread_.reset(new boost::thread(boost::bind(&INetworkModule::Run, this))); 
+
 	return true;
 }
 
+ void INetworkModule::handle_accept(socket_ptr callback_session, const boost::system::error_code& error)
+ {
+	 if (!error) 
+	 { 
+		 //给玩家注册一个session
+
+		 std::cout<<"Client:";
+		 std::cout<<callback_session->remote_endpoint().address()<<std::endl;
+		 // 发送完毕后继续监听，否则io_service将认为没有事件处理而结束运行
+		 Start();
+	 } 
+ }
 	/*
 	 建立网络连接
 	 @ip			要连接的远端地址
@@ -50,7 +83,7 @@ bool INetworkModule::Listen(Port port, int backlog, NetID *netid_out, const char
 bool INetworkModule::Connect(const char *ip, Port port, NetID *netid_out, unsigned long time_out)
 {
 	// socket对象
-	ip::tcp::socket socket(iosev);
+	ip::tcp::socket socket(io_service_);
 	// 连接端点，这里使用了本机连接，可以修改IP地址测试远程连接
 	ip::tcp::endpoint ep(ip::address_v4::from_string(ip), port);
 	// 连接服务器
@@ -90,9 +123,9 @@ bool INetworkModule::Send(NetID netid, const char *data, unsigned int length)
 
 int INetworkModule::Update()
 {
-	ip::tcp::socket socket(iosev);
+	ip::tcp::socket socket(io_service_);
 	// 等待直到客户端连接进来
-	acceptor->accept(socket);
+	acceptor_->accept(socket);
 	// 显示连接进来的客户端
 	std::cout << socket.remote_endpoint().address()<<" "<<socket.remote_endpoint().port()<< std::endl;
 	// 向客户端发送hello world!
