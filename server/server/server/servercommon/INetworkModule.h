@@ -171,7 +171,7 @@ private:
 		//判断没有从客户端读取到消息的情况下断开连接
 		if(!is_read_){
 			socket_.close();
-			
+			//netid 剔除
 		}
 	}
 
