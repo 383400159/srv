@@ -6,6 +6,7 @@
 INetworkModule::INetworkModule(void)
 {
 	NetIDCount_ = 0;
+	callback_ = new IEngineNetCallback();
 }
 
 
@@ -39,7 +40,6 @@ int INetworkModule::Start()
 	socket_ptr sock(new ip::tcp::socket(io_service_));
 	//一个session代表一个玩家
 	session_ptr new_session( new INetworkSession(io_service_));
-	session_ptr new_session1( new INetworkSession(io_service_));
 	acceptor_->async_accept(new_session->socket(), boost::bind(&INetworkModule::handle_accept,this,new_session,boost::asio::placeholders::error));
 	return 1;
 }
@@ -69,6 +69,7 @@ bool INetworkModule::Listen(Port port, int backlog, NetID *netid_out, const char
 		 //给玩家分配一个netid 代表唯一id
 		 NetIDCount_++;
 		 callback_session->set_netid(NetIDCount_);
+		 callback_session->RegisterCallback(callback_);
 		 NetIDList_.insert(std::make_pair(NetIDCount_,callback_session));
 		 callback_session->start();
 		 std::cout<<"Client:";
@@ -161,6 +162,11 @@ void IEngineNetCallback::OnAccept(Port listen_port, NetID netid, IP ip, Port por
 void IEngineNetCallback::OnRecv(NetID netid, const char *data, int length)
 {
 	std::cout<<"netid:"<<netid<<" data:"<<*data<<" length:"<<length<<std::endl;
+}
+
+void IEngineNetCallback::OnDisconnect(NetID netid)
+{
+	std::cout<<"OnDisconnect netid:"<<netid<<std::endl;
 }
 
 IEngineNetCallback::IEngineNetCallback()

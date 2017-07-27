@@ -89,6 +89,9 @@ public:
 	inline void set_netid(uint32_t netid) { netid_ = netid;}
 	inline uint32_t get_netid() {return netid_ ;}
 
+	void RegisterCallback(IEngineNetCallback * callback){
+		callback_ = callback;
+	}
 
 	//开始监听消息到来
 	void start() {
@@ -96,6 +99,8 @@ public:
 		timer_.expires_from_now(boost::posix_time::seconds(5));
 		timer_.async_wait(boost::bind(&INetworkSession::time_out, shared_from_this()));
 		this->start_read();
+		
+		callback_->OnAccept(socket_.local_endpoint().port(),netid_,inet_addr(socket_.remote_endpoint().address().to_string().c_str()),socket_.remote_endpoint().port());
 	}
 
 	void start_read(){
@@ -143,6 +148,9 @@ public:
 		// in here finish the work. 
 		std::cout<<" port:"<<socket_.remote_endpoint().port() << "receive :" << bytes_transferred << " bytes." << 
 			"message :" << data_stream << std::endl; 
+		
+		
+		callback_->OnRecv(netid_,data_stream,sizeof(data_stream));
 		//加入消息列表
 		send_data_list_.push_back((std::string)data_stream);
 		//test 发送消息给clent
@@ -172,6 +180,7 @@ private:
 		if(!is_read_){
 			socket_.close();
 			//netid 剔除
+			callback_->OnDisconnect(netid_);
 		}
 	}
 
@@ -184,7 +193,9 @@ private:
 	string_ptr str_prt_;
 	//顺序发送消息 防止消息错乱
 	std::vector<std::string> send_data_list_;
-
+	//回调
+	IEngineNetCallback* callback_;
+	
 	deadline_timer timer_;
 	bool is_read_ ;
 };
@@ -207,7 +218,7 @@ public:
 	 注册网络消息回调
 	 @callback		网络回调
 	*/
-	 void RegisterCallback(IEngineNetCallback * callback);
+	 //void RegisterCallback(IEngineNetCallback * callback);
 
 	/*
 	 创建监听句柄
