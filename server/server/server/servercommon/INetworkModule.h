@@ -5,11 +5,16 @@
 #ifdef _MSC_VER
 #define _WIN32_WINNT 0x0501
 #endif
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/thread.hpp> 
+#include <boost/aligned_storage.hpp> 
+#include <boost/array.hpp> 
+#include <boost/bind.hpp> 
+#include <boost/enable_shared_from_this.hpp> 
+#include <boost/noncopyable.hpp> 
+#include <boost/shared_ptr.hpp> 
+#include <boost/asio.hpp> 
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+
 #include<iostream>
 #include<stdio.h>
 #include<stdlib.h>
@@ -26,6 +31,7 @@ typedef unsigned int		IP;
 typedef unsigned short		Port;
 typedef boost::shared_ptr<ip::tcp::socket> socket_ptr;
 typedef boost::shared_ptr<INetworkSession> session_ptr;
+typedef boost::shared_ptr<std::string> string_ptr;
 
 class IEngineNetCallback
 {
@@ -72,28 +78,115 @@ class INetworkSession: public boost::enable_shared_from_this<INetworkSession>
 public: 
 	INetworkSession(boost::asio::io_service& io_service) 
 		: socket_(io_service) 
+		, io_work_service(io_service)
+		, timer_(io_service)
 	{ 
-	
+		is_read_ = false;
 	} 
 
 	//返回当前的操作对象
 	inline ip::tcp::socket& socket() { return socket_; } 
+	inline void set_netid(uint32_t netid) { netid_ = netid;}
+	inline uint32_t get_netid() {return netid_ ;}
+
 
 	//开始监听消息到来
-	void start() ;
+	void start() {
+		//当客户端连接上5秒钟以后检测是否进行了通信
+		timer_.expires_from_now(boost::posix_time::seconds(5));
+		timer_.async_wait(boost::bind(&INetworkSession::time_out, shared_from_this()));
+		this->start_read();
+	}
+
+	void start_read(){
+		socket_.async_read_some(boost::asio::buffer(data_), 
+			boost::bind(&INetworkSession::handle_read, 
+			shared_from_this(), 
+			boost::asio::placeholders::error, 
+			boost::asio::placeholders::bytes_transferred)); 
+	}
 	//读取消息回调
-	void handle_read(const boost::system::error_code& error, size_t bytes_transferred) ;
+	void handle_read(const boost::system::error_code& error, size_t bytes_transferred) {
+		if (!error) 
+		{ 
+			is_read_ = true;
+			//取消定时器
+			timer_.cancel();
+			boost::shared_ptr<std::vector<char> > buf(new std::vector<char>); 
+
+			buf->resize(bytes_transferred); 
+			std::copy(data_.begin(), data_.begin() + bytes_transferred, buf->begin()); 
+			//防止解析数据堵塞 采用post队列处理消息解析
+			io_work_service.post(boost::bind(&INetworkSession::on_receive, 
+				shared_from_this(), 
+				buf, 
+				bytes_transferred));
+			this->start_read();
+		} 
+	}
 	//写入消息回调
-	void handle_write(const boost::system::error_code& error) ;
+	void handle_write(const boost::system::error_code& error) {
+		if (!error) 
+		{ 
+			send_data_list_.erase(send_data_list_.begin());
+			//std::cout<<" handle_write:"<<std::endl;
+			if (send_data_list_.size()>0)
+			{
+				this->async_write(send_data_list_[0]);
+			}
+		} 
+	}
 
-	void on_receive(boost::shared_ptr<std::vector<char> > buffers, size_t bytes_transferred) ;
+	void on_receive(boost::shared_ptr<std::vector<char> > buffers, size_t bytes_transferred) 
+	{
+		char* data_stream = &(*buffers->begin()); 
+		// in here finish the work. 
+		std::cout<<" port:"<<socket_.remote_endpoint().port() << "receive :" << bytes_transferred << " bytes." << 
+			"message :" << data_stream << std::endl; 
+		//加入消息列表
+		send_data_list_.push_back((std::string)data_stream);
+		//test 发送消息给clent
+		if (send_data_list_.size()==1)
+		{
+			this->async_write((std::string)data_stream);
+		}
+		
+	}
 
+	//同步写入消息
+	void write(std::string  data){
+		socket_.write_some(buffer(data));
+	}
+	//异步写入消息
+	void async_write(std::string  data){
+		str_prt_.reset(new std::string(data));
+		boost::asio::async_write(socket_,buffer(*str_prt_),boost::bind(&INetworkSession::handle_write, 
+			shared_from_this(), 
+			boost::asio::placeholders::error)); 
+	}
 
 private: 
+	void time_out()
+	{
+		//判断没有从客户端读取到消息的情况下断开连接
+		if(!is_read_){
+			socket_.close();
+			
+		}
+	}
 
+	boost::asio::io_service& io_work_service; 
 	// The socket used to communicate with the client. 
 	ip::tcp::socket socket_; 
+	uint32_t netid_ ;
+	boost::array<char, 1024> data_; 
+	//防止写入消息 局部变量被擦除
+	string_ptr str_prt_;
+	//顺序发送消息 防止消息错乱
+	std::vector<std::string> send_data_list_;
 
+	deadline_timer timer_;
+	bool is_read_ ;
 };
 
 class INetworkModule 
@@ -188,15 +281,18 @@ public:
 	 /*
 	 异步链接回调
 	 */
-	 void handle_accept(socket_ptr callback_session, const boost::system::error_code& error); 
+	 void handle_accept(session_ptr callback_session, const boost::system::error_code& error); 
 
 private:
 	boost::asio::io_service io_service_;
 	boost::asio::ip::tcp::acceptor* acceptor_;
 	boost::shared_ptr<boost::thread> io_thread_; 
 
-	std::map<ip::tcp::socket,IEngineNetCallback*> AcceptMapList;
+	std::map<ip::tcp::socket,IEngineNetCallback*> AcceptMapList_;
 	IEngineNetCallback* callback_;
+
+	uint32_t NetIDCount_;
+	std::map<uint32_t,session_ptr> NetIDList_;
 };
 
 #endif

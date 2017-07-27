@@ -5,7 +5,7 @@
 
 INetworkModule::INetworkModule(void)
 {
-
+	NetIDCount_ = 0;
 }
 
 
@@ -37,8 +37,10 @@ int INetworkModule::Start()
 {
 	//新建一个socket 用来等待玩家进来
 	socket_ptr sock(new ip::tcp::socket(io_service_));
-	//INetworkSession* new_session = new INetworkSession(io_service_);
-	acceptor_->async_accept(*sock, boost::bind(&INetworkModule::handle_accept,this,sock,boost::asio::placeholders::error));
+	//一个session代表一个玩家
+	session_ptr new_session( new INetworkSession(io_service_));
+	session_ptr new_session1( new INetworkSession(io_service_));
+	acceptor_->async_accept(new_session->socket(), boost::bind(&INetworkModule::handle_accept,this,new_session,boost::asio::placeholders::error));
 	return 1;
 }
 /*
@@ -60,17 +62,26 @@ bool INetworkModule::Listen(Port port, int backlog, NetID *netid_out, const char
 	return true;
 }
 
- void INetworkModule::handle_accept(socket_ptr callback_session, const boost::system::error_code& error)
+ void INetworkModule::handle_accept(session_ptr callback_session, const boost::system::error_code& error)
  {
 	 if (!error) 
 	 { 
-		 //给玩家注册一个session
-
+		 //给玩家分配一个netid 代表唯一id
+		 NetIDCount_++;
+		 callback_session->set_netid(NetIDCount_);
+		 NetIDList_.insert(std::make_pair(NetIDCount_,callback_session));
+		 callback_session->start();
 		 std::cout<<"Client:";
-		 std::cout<<callback_session->remote_endpoint().address()<<std::endl;
+		 std::cout<<callback_session->socket().remote_endpoint().address()<<std::endl;
 		 // 发送完毕后继续监听，否则io_service将认为没有事件处理而结束运行
-		 Start();
-	 } 
+	 }
+	 else
+	 {
+		 std::cout <<"handle_accept error:" <<error.value();
+		 //throw boost::system::system_error(error);  
+	 }
+	 //无论如何都要继续监听
+	 Start();
  }
 	/*
 	 建立网络连接
