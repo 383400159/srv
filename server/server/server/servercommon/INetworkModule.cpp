@@ -36,8 +36,6 @@ int INetworkModule::Stop()
 }
 int INetworkModule::Start()
 {
-	//新建一个socket 用来等待玩家进来
-	socket_ptr sock(new ip::tcp::socket(io_service_));
 	//一个session代表一个玩家
 	session_ptr new_session( new INetworkSession(io_service_));
 	acceptor_->async_accept(new_session->socket(), boost::bind(&INetworkModule::handle_accept,this,new_session,boost::asio::placeholders::error));
@@ -51,7 +49,7 @@ int INetworkModule::Start()
 	@ip_bind		listen 时的绑定socket 的 ip，如果为0则绑定到INADDR_ANY
 	@Return		是否监听成功
 */
-bool INetworkModule::Listen(Port port, int backlog, NetID *netid_out, const char *ip_bind)
+bool INetworkModule::Listen(Port port, int backlog, NetID netid_out, const char *ip_bind)
 {
 	// 所有asio类都需要io_service对象
 	acceptor_ = new ip::tcp::acceptor(io_service_, ip::tcp::endpoint(ip::tcp::v4(), port));
@@ -70,8 +68,9 @@ bool INetworkModule::Listen(Port port, int backlog, NetID *netid_out, const char
 		 NetIDCount_++;
 		 callback_session->set_netid(NetIDCount_);
 		 callback_session->RegisterCallback(callback_);
-		 NetIDList_.insert(std::make_pair(NetIDCount_,callback_session));
 		 callback_session->start();
+		 NetIDList_.insert(std::make_pair(NetIDCount_,callback_session));
+		 callback_session->write("hello my is server");
 		 std::cout<<"Client:";
 		 std::cout<<callback_session->socket().remote_endpoint().address()<<std::endl;
 		 // 发送完毕后继续监听，否则io_service将认为没有事件处理而结束运行
@@ -92,28 +91,33 @@ bool INetworkModule::Listen(Port port, int backlog, NetID *netid_out, const char
 	 @time_out		建立网络连接动作的超时时间，单位毫秒，默认为3000
 	 @Return		是否连接成功
 	*/
-bool INetworkModule::Connect(const char *ip, Port port, NetID *netid_out, unsigned long time_out)
+bool INetworkModule::Connect(const char *ip, Port port, NetID netid_out, unsigned long time_out)
 {
-	// socket对象
-	ip::tcp::socket socket(io_service_);
+	session_ptr new_session( new INetworkSession(io_service_));
 	// 连接端点，这里使用了本机连接，可以修改IP地址测试远程连接
 	ip::tcp::endpoint ep(ip::address_v4::from_string(ip), port);
 	// 连接服务器
 	boost::system::error_code ec;
-	socket.connect(ep,ec);
-	// 如果出错，打印出错信息
-	if(ec)
-	{
-		std::cout << boost::system::system_error(ec).what() << std::endl;
-		return false;
-	}
-	// 接收数据
-	char buf[100];
-	size_t len=socket.read_some(buffer(buf), ec);
-	std::cout.write(buf, len);
+	new_session->socket().async_connect(ep, boost::bind(&INetworkModule::handle_connect,this,new_session,netid_out,boost::asio::placeholders::error));
+	//因为io_service.run会堵塞线程 所以用一个线程来防堵塞
+	io_thread_.reset(new boost::thread(boost::bind(&INetworkModule::Run, this))); 
 	return true;
 }
 
+  /*
+	 异步ping回调
+	 */
+void INetworkModule::handle_connect(session_ptr callback_session,NetID netid_out,const boost::system::error_code& error)
+{
+	if (!error)
+	{
+		callback_session->set_netid(netid_out);
+		callback_session->RegisterCallback(callback_);
+		callback_session->start();
+		ServerList_.insert(std::make_pair(netid_out,callback_session));
+		callback_session->write("hello my is client");
+	}
+}
 /*
 	发送消息包，注意，该函数并不代表数据已经成功发送，而是将消息放到待发送队列中异步发送
 	如果某个连接断开回调disconnect时，有可能导致消息包丢失
