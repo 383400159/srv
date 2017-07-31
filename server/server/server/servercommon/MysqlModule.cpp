@@ -12,7 +12,6 @@ MysqlModule::MysqlModule(void)
 
 MysqlModule::~MysqlModule(void)
 {
-	if(result_!=NULL) mysql_free_result(result_);//释放结果资源
 	mysql_close(&mysql_);//断开连接
 }
 
@@ -42,33 +41,15 @@ bool MysqlModule::start()
 
 bool MysqlModule::query()
 {   
-	char column[32][32];
-	auto res=mysql_query(&mysql_,"select * from test");//查询
+	const char * sql = "select * from test";
+	auto res=mysql_real_query(&mysql_,sql,strlen(sql));//查询
 	if(!res)
 	{
 		auto result_=mysql_store_result(&mysql_);//保存查询到的数据到result
 		if(result_)
 		{
-			int i,j;
-			cout<<"number of result: "<<(unsigned long)mysql_num_rows(result_)<<endl;
-			for(i=0;fd_=mysql_fetch_field(result_);i++)//获取列名
-			{
-				strcpy(column[i],fd_->name);
-			}
-			j=mysql_num_fields(result_);
-			for(i=0;i<j;i++)
-			{
-				printf("%s\t",column[i]);
-			}
-			printf("\n");
-			while(sql_row_=mysql_fetch_row(result_))//获取具体的数据
-			{
-				for(i=0;i<j;i++)
-				{
-					printf("%s\t",sql_row_[i]);
-				}
-				printf("\n");
-			}
+			this->log(result_);
+			if(result_!=NULL) mysql_free_result(result_);//使用完以后 释放结果资源
 			return true;
 		}
 		else
@@ -82,3 +63,47 @@ bool MysqlModule::query()
 		return false;
 	}
 }
+
+//写入数据
+bool MysqlModule::write()
+{
+	const char * sql = "update test set degree=888 where id=1 ";
+	auto ret=mysql_real_query(&mysql_,sql,strlen(sql));//查询
+	if (ret)
+	{
+	}
+	return true;
+}
+
+
+void MysqlModule::log(MYSQL_RES * result)
+{
+	MYSQL_ROW sql_row;
+	MYSQL_FIELD *fd;
+	char column[32][32];
+	int i,j;
+	cout<<"number of result: "<<(unsigned long)mysql_num_rows(result)<<endl;
+	for(i=0;fd=mysql_fetch_field(result);i++)//获取列名
+	{
+		strcpy(column[i],fd->name);
+	}
+	j=mysql_num_fields(result);
+	for(i=0;i<j;i++)
+	{
+		printf("%s\t",column[i]);
+	}
+	printf("\n");
+	while(sql_row=mysql_fetch_row(result))//获取具体的数据
+	{
+		for(i=0;i<j;i++)
+		{
+			printf("%s\t",sql_row[i]);
+		}
+		printf("\n");
+	}
+}
+
+
+
+
+

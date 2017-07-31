@@ -25,15 +25,17 @@ class MysqlModule
 public:
 	MysqlModule(void);
 	~MysqlModule(void);
-
+	//启动数据库
 	bool start();
+
+	//查询数据
 	bool query();
+	//写入数据
+	bool write();
+
+
+	void log(MYSQL_RES * result);
 private:
 	MYSQL mysql_;
-	MYSQL_RES *result_;
-	MYSQL_ROW sql_row_;
-	MYSQL_FIELD *fd_;
-
-	
 };
 #endif
