@@ -103,7 +103,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\..\lib\boost\lib;..\..\..\lib\mysql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -170,14 +170,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="INetworkModule.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="INetworkModule.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MysqlModule.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="libmysql.dll" />
+    <ClInclude Include="INetworkModule.h" />
+    <ClInclude Include="MysqlModule.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
