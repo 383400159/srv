@@ -172,11 +172,14 @@
   <ItemGroup>
     <ClCompile Include="INetworkModule.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MysqlModule.cpp" />
+    <ClCompile Include="mysqlcallback.cpp" />
+    <ClCompile Include="mysqlmanager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INetworkModule.h" />
-    <ClInclude Include="MysqlModule.h" />
+    <ClInclude Include="mysqlcallback.h" />
+    <ClInclude Include="mysqlmanager.h" />
+    <ClInclude Include="singleton.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

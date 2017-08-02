@@ -21,7 +21,10 @@
     <ClCompile Include="INetworkModule.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MysqlModule.cpp">
+    <ClCompile Include="mysqlmanager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mysqlcallback.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,7 +32,13 @@
     <ClInclude Include="INetworkModule.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="MysqlModule.h">
+    <ClInclude Include="mysqlmanager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="singleton.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mysqlcallback.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

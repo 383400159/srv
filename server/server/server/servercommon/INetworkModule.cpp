@@ -165,7 +165,7 @@ void IEngineNetCallback::OnAccept(Port listen_port, NetID netid, IP ip, Port por
 
 void IEngineNetCallback::OnRecv(NetID netid, const char *data, int length)
 {
-	std::cout<<"netid:"<<netid<<" data:"<<*data<<" length:"<<length<<std::endl;
+	std::cout<<"netid:"<<netid<<" data:"<<data<<" length:"<<length<<std::endl;
 }
 
 void IEngineNetCallback::OnDisconnect(NetID netid)

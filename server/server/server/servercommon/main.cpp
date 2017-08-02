@@ -1,16 +1,29 @@
 #include <iostream>
 #include "INetworkModule.h"
-#include "MysqlModule.h"
+#include "mysqlmanager.h"
 using namespace std;
+/*
 int main()
 {
-	auto mysql = new MysqlModule();
-	mysql->start();
+	//auto mysql = new mysqlmanager();
+	mysqlSrv.start();
+	
+	mysqlSrv.write_data_by_two_key(1,"testkey","testkey1","testVAL666 TEST");
+	//mysql->read(1,"select * from test");
+	//mysql->read(2,"select * from test1");
+	//mysql->write(1,"update test set degree=88.8");
+	//mysql->write(2,"update test1 set degree=888");
+	//const char * sql = "update test set degree=888 ";
+	
+
+	
+	
+	//mysql->write();
+	getchar(); 
 	return 0;
 }
+*/
 
-
-/*
 int main(int argc, char *argv[])
 {
 
@@ -27,5 +40,5 @@ int main(int argc, char *argv[])
 	getchar(); 
 	return 0;
 }
-*/
+
 

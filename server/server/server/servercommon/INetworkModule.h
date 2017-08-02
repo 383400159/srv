@@ -171,13 +171,24 @@ private:
 	*/ 
 	void on_receive(boost::shared_ptr<std::vector<char> > buffers, size_t bytes_transferred) 
 	{
-		char* data_stream = &(*buffers->begin()); 
+		byte* data_stream = (byte*)(&(*buffers->begin())); 
+		//需要加上自己所占的4格
+		int max_len = data_stream[0]+data_stream[1]*256+data_stream[2]*256*256+data_stream[3]*256*256*256 + 4;
+		short msgID = data_stream[4]+data_stream[5]*256;
+		
+		if (max_len!=buffers->size())
+		{
+			std::cout<<"on_receive len error "<<max_len <<" "<<buffers->size()<<std::endl;
+			return;
+		}
+
 		// in here finish the work. 
 		std::cout<<" port:"<<socket_.remote_endpoint().port() << "receive :" << bytes_transferred << " bytes." << 
-			"message :" << data_stream << std::endl; 
+			"message :" << data_stream+12 << std::endl; 
 
-
-		callback_->OnRecv(netid_,data_stream,sizeof(data_stream));
+		char * recvMsg = (char*)data_stream + 12;
+		std::copy((char*)data_stream + 12, (char*)data_stream + max_len , recvMsg); 
+		callback_->OnRecv(netid_,recvMsg,max_len-12);
 	}
 
 	//拼接消息
@@ -189,8 +200,8 @@ private:
 		net_MsgID_byte[0] = (byte)(msgID);
 		net_MsgID_byte[1] = (byte)(msgID >> 8);
 
+		std::cout<<" "<< sizeof(net_MsgID_byte) << " "<<sizeof(m_NotUseByte) <<" "<<sizeof(m_NotUseByte2)<<" "<<data.size()<<std::endl;
 		int net_data_size = sizeof(net_MsgID_byte) +  sizeof(m_NotUseByte) + sizeof(m_NotUseByte2) + data.size();
-
 		//int to byte
 		byte net_Data_Size_byte[4];
 		net_Data_Size_byte[0] = (byte)(net_data_size);
