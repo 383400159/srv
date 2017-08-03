@@ -27,7 +27,7 @@ INetworkASIO::~INetworkASIO(void)
 int INetworkASIO::Init()
 {
 	NetIDCount_ = 0;
-	callback_ = new IEngineNetCallback();
+	callback_ = new ASIOCallback();
 	return 0;
 }
 
@@ -176,27 +176,27 @@ int INetworkASIO::Update()
 	return 0;
 }
 
-void IEngineNetCallback::OnAccept(Port listen_port, NetID netid, IP ip, Port port)
+void ASIOCallback::OnAccept(Port listen_port, NetID netid, IP ip, Port port)
 {
 	std::cout<<"listen_port:"<<listen_port<<" netid:"<<netid<<" ip"<<ip<<" port"<<port<<std::endl;
 }
 
-void IEngineNetCallback::OnRecv(NetID netid, const char *data, int length)
+void ASIOCallback::OnRecv(NetID netid, const char *data, int length)
 {
 	std::cout<<"netid:"<<netid<<" data:"<<data<<" length:"<<length<<std::endl;
 }
 
-void IEngineNetCallback::OnDisconnect(NetID netid)
+void ASIOCallback::OnDisconnect(NetID netid)
 {
 	std::cout<<"OnDisconnect netid:"<<netid<<std::endl;
 }
 
-IEngineNetCallback::IEngineNetCallback()
+ASIOCallback::ASIOCallback()
 {
 
 }
 
-IEngineNetCallback::~IEngineNetCallback()
+ASIOCallback::~ASIOCallback()
 {
 
 }

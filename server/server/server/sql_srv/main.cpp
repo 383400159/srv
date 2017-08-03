@@ -12,8 +12,7 @@ int main(int argc, char *argv[])
 	server_net_work->Listen(7001,5);
 
 	std::cout<<"sql-srv start end--------------------"<<std::endl;
-	system("pause");
-	//getchar(); 
+	getchar(); 
 	return 0;
 }
 

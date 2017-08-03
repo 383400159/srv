@@ -24,7 +24,7 @@
 using namespace boost::asio;
 
 
-static const char NETWORK_MODULE[] = "NetworkModule";
+
 class INetworkSession;
 typedef	unsigned int		NetID;
 typedef unsigned int		IP;
@@ -33,11 +33,11 @@ typedef boost::shared_ptr<ip::tcp::socket> socket_ptr;
 typedef boost::shared_ptr<INetworkSession> session_ptr;
 typedef boost::shared_ptr<std::string> string_ptr;
 
-class IEngineNetCallback
+class ASIOCallback
 {
 public:
-	 IEngineNetCallback();
-	 ~IEngineNetCallback();
+	 ASIOCallback();
+	 ~ASIOCallback();
 
 	/*
 	 单有连接accept时则回调该函数
@@ -89,7 +89,7 @@ public:
 	inline void set_netid(uint32_t netid) { netid_ = netid;}
 	inline uint32_t get_netid() {return netid_ ;}
 
-	void RegisterCallback(IEngineNetCallback * callback){
+	void RegisterCallback(ASIOCallback * callback){
 		callback_ = callback;
 	}
 
@@ -262,7 +262,7 @@ private:
 	//顺序发送消息 防止消息错乱
 	std::vector<std::string> send_data_list_;
 	//回调
-	IEngineNetCallback* callback_;
+	ASIOCallback* callback_;
 	
 	deadline_timer timer_;
 	bool is_read_ ;
@@ -364,7 +364,7 @@ public:
 	 注册网络消息回调
 	 @callback		网络回调
 	*/
-	 //void RegisterCallback(IEngineNetCallback * callback);
+	 //void RegisterCallback(ASIOCallback * callback);
 
 	/*
 	 创建监听句柄
@@ -411,7 +411,7 @@ public:
 	/*
 	 断开某连接，可以断开包括监听套接字在内的所有连接
 	 注意，该函数返回时并不代表该连接已经断开，而是将该连接标记为待断开
-	 真正断开的行为是由IEngineNetCallback::OnDisconnect保证的
+	 真正断开的行为是由ASIOCallback::OnDisconnect保证的
 	 @netid			要断开的网络id
 	*/
 	 void Disconnect(NetID netid);
@@ -434,8 +434,8 @@ private:
 	boost::shared_ptr<boost::thread> obj_io_thread_; 
 	boost::shared_ptr<boost::thread> obj_work_thread_; 
 
-	std::map<ip::tcp::socket,IEngineNetCallback*> AcceptMapList_;
-	IEngineNetCallback* callback_;
+	std::map<ip::tcp::socket,ASIOCallback*> AcceptMapList_;
+	ASIOCallback* callback_;
 
 	uint32_t NetIDCount_;
 	std::map<uint32_t,session_ptr> NetIDList_;
