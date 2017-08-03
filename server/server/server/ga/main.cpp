@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
 
 	std::cout<<"start--------------------------------"<<std::endl;
-	INetworkModule* net_work = new INetworkModule(2);
+	INetworkModule* net_work = new INetworkModule();
 	
 	net_work->Connect("192.168.1.136",7001,1,3000);
 	std::cout<<"test"<<std::endl;

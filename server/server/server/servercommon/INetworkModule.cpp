@@ -7,10 +7,15 @@ INetworkModule::INetworkModule(std::size_t io_service_pool_size)
 	: io_service_pool_(io_service_pool_size) 
 	, io_service_work_pool_(io_service_pool_size) 
 {
-	NetIDCount_ = 0;
-	callback_ = new IEngineNetCallback();
+	this->Init();
 }
 
+INetworkModule::INetworkModule()
+	: io_service_pool_(1) 
+	, io_service_work_pool_(1) 
+{
+	this->Init();
+}
 
 INetworkModule::~INetworkModule(void)
 {
@@ -21,7 +26,8 @@ INetworkModule::~INetworkModule(void)
 
 int INetworkModule::Init()
 {
-
+	NetIDCount_ = 0;
+	callback_ = new IEngineNetCallback();
 	return 0;
 }
 
@@ -33,13 +39,15 @@ int INetworkModule::Stop()
 {
 	io_service_.stop();
 	io_thread_->join();
+	obj_io_thread_->join();
+	obj_work_thread_->join();
 
 	return 1;
 }
 int INetworkModule::Start()
 {
 	//一个session代表一个玩家
-	session_ptr new_session( new INetworkSession(io_service_,io_service_));
+	session_ptr new_session( new INetworkSession(io_service_pool_.get_io_service(),io_service_work_pool_.get_io_service()));
 	acceptor_->async_accept(new_session->socket(), boost::bind(&INetworkModule::handle_accept,this,new_session,boost::asio::placeholders::error));
 	return 1;
 }
@@ -58,7 +66,8 @@ bool INetworkModule::Listen(Port port, int backlog, NetID netid_out, const char 
 	this->Start();
 	//因为io_service.run会堵塞线程 所以用一个线程来防堵塞
 	io_thread_.reset(new boost::thread(boost::bind(&INetworkModule::Run, this))); 
-
+	obj_io_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run, io_service_pool_)));
+	obj_work_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run, io_service_work_pool_)));
 	return true;
 }
 
@@ -162,7 +171,7 @@ int INetworkModule::Update()
 
 void IEngineNetCallback::OnAccept(Port listen_port, NetID netid, IP ip, Port port)
 {
-	std::cout<<" listen_port:"<<listen_port<<" netid:"<<netid<<" ip"<<ip<<" port"<<port<<std::endl;
+	std::cout<<"listen_port:"<<listen_port<<" netid:"<<netid<<" ip"<<ip<<" port"<<port<<std::endl;
 }
 
 void IEngineNetCallback::OnRecv(NetID netid, const char *data, int length)

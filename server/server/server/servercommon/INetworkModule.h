@@ -183,9 +183,10 @@ private:
 		}
 
 		// in here finish the work. 
+		/*
 		std::cout<<" port:"<<socket_.remote_endpoint().port() << "receive :" << bytes_transferred << " bytes." << 
 			"message :" << data_stream+12 << std::endl; 
-
+			*/
 
 		std::string msg ;
 		for (auto i = 12; i<max_len;i++)
@@ -204,7 +205,6 @@ private:
 		net_MsgID_byte[0] = (byte)(msgID);
 		net_MsgID_byte[1] = (byte)(msgID >> 8);
 
-		std::cout<<" "<< sizeof(net_MsgID_byte) << " "<<sizeof(m_NotUseByte) <<" "<<sizeof(m_NotUseByte2)<<" "<<data.size()<<std::endl;
 		int net_data_size = sizeof(net_MsgID_byte) +  sizeof(m_NotUseByte) + sizeof(m_NotUseByte2) + data.size();
 		//int to byte
 		byte net_Data_Size_byte[4];
@@ -272,7 +272,6 @@ private:
 
 /// A pool of io_service objects. 
 class io_service_pool 
-	: private boost::noncopyable 
 { 
 public: 
 	/// Construct the io_service pool. 
@@ -325,7 +324,7 @@ public:
 		++next_io_service_; 
 		if (next_io_service_ == io_services_.size()) 
 			next_io_service_ = 0; 
-		std::cout<<" next_io_service_:"<<next_io_service_<<std::endl;
+		//std::cout<<" next_io_service_:"<<next_io_service_<<std::endl;
 		return io_service; 
 	} 
 
@@ -350,6 +349,7 @@ class INetworkModule
 {
 public:
 	INetworkModule(std::size_t io_service_pool_size);
+	INetworkModule();
 	~INetworkModule();
 public:
 	 int Init();
@@ -429,7 +429,10 @@ public:
 private:
 	boost::asio::io_service io_service_;
 	boost::asio::ip::tcp::acceptor* acceptor_;
+
 	boost::shared_ptr<boost::thread> io_thread_; 
+	boost::shared_ptr<boost::thread> obj_io_thread_; 
+	boost::shared_ptr<boost::thread> obj_work_thread_; 
 
 	std::map<ip::tcp::socket,IEngineNetCallback*> AcceptMapList_;
 	IEngineNetCallback* callback_;
