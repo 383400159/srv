@@ -3,7 +3,9 @@
 
 
 
-INetworkModule::INetworkModule(void)
+INetworkModule::INetworkModule(std::size_t io_service_pool_size)
+	: io_service_pool_(io_service_pool_size) 
+	, io_service_work_pool_(io_service_pool_size) 
 {
 	NetIDCount_ = 0;
 	callback_ = new IEngineNetCallback();
@@ -37,7 +39,7 @@ int INetworkModule::Stop()
 int INetworkModule::Start()
 {
 	//一个session代表一个玩家
-	session_ptr new_session( new INetworkSession(io_service_));
+	session_ptr new_session( new INetworkSession(io_service_,io_service_));
 	acceptor_->async_accept(new_session->socket(), boost::bind(&INetworkModule::handle_accept,this,new_session,boost::asio::placeholders::error));
 	return 1;
 }
@@ -93,7 +95,7 @@ bool INetworkModule::Listen(Port port, int backlog, NetID netid_out, const char 
 	*/
 bool INetworkModule::Connect(const char *ip, Port port, NetID netid_out, unsigned long time_out)
 {
-	session_ptr new_session( new INetworkSession(io_service_));
+	session_ptr new_session( new INetworkSession(io_service_,io_service_));
 	// 连接端点，这里使用了本机连接，可以修改IP地址测试远程连接
 	ip::tcp::endpoint ep(ip::address_v4::from_string(ip), port);
 	// 连接服务器

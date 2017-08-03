@@ -335,7 +335,7 @@ int main(int argc, char* argv[])
 	{ 
 
 		using namespace std; // For atoi. 
-		server s(19001,8); 
+		server s(7001,8); 
 
 		s.run(); 
 
