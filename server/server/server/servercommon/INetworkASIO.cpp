@@ -1,41 +1,41 @@
-#include "INetworkModule.h"
+#include "INetworkASIO.h"
 
 
 
 
-INetworkModule::INetworkModule(std::size_t io_service_pool_size)
+INetworkASIO::INetworkASIO(std::size_t io_service_pool_size)
 	: io_service_pool_(io_service_pool_size) 
 	, io_service_work_pool_(io_service_pool_size) 
 {
 	this->Init();
 }
 
-INetworkModule::INetworkModule()
+INetworkASIO::INetworkASIO()
 	: io_service_pool_(1) 
 	, io_service_work_pool_(1) 
 {
 	this->Init();
 }
 
-INetworkModule::~INetworkModule(void)
+INetworkASIO::~INetworkASIO(void)
 {
 	this->Stop();
 }
 
 
 
-int INetworkModule::Init()
+int INetworkASIO::Init()
 {
 	NetIDCount_ = 0;
 	callback_ = new IEngineNetCallback();
 	return 0;
 }
 
-void INetworkModule::Run()
+void INetworkASIO::Run()
 {
 	io_service_.run();
 }
-int INetworkModule::Stop()
+int INetworkASIO::Stop()
 {
 	io_service_.stop();
 	io_thread_->join();
@@ -44,11 +44,11 @@ int INetworkModule::Stop()
 
 	return 1;
 }
-int INetworkModule::Start()
+int INetworkASIO::Start()
 {
 	//一个session代表一个玩家
 	session_ptr new_session( new INetworkSession(io_service_pool_.get_io_service(),io_service_work_pool_.get_io_service()));
-	acceptor_->async_accept(new_session->socket(), boost::bind(&INetworkModule::handle_accept,this,new_session,boost::asio::placeholders::error));
+	acceptor_->async_accept(new_session->socket(), boost::bind(&INetworkASIO::handle_accept,this,new_session,boost::asio::placeholders::error));
 	return 1;
 }
 /*
@@ -59,19 +59,19 @@ int INetworkModule::Start()
 	@ip_bind		listen 时的绑定socket 的 ip，如果为0则绑定到INADDR_ANY
 	@Return		是否监听成功
 */
-bool INetworkModule::Listen(Port port, int backlog, NetID netid_out, const char *ip_bind)
+bool INetworkASIO::Listen(Port port, int backlog, NetID netid_out, const char *ip_bind)
 {
 	// 所有asio类都需要io_service对象
 	acceptor_ = new ip::tcp::acceptor(io_service_, ip::tcp::endpoint(ip::tcp::v4(), port));
 	this->Start();
 	//因为io_service.run会堵塞线程 所以用一个线程来防堵塞
-	io_thread_.reset(new boost::thread(boost::bind(&INetworkModule::Run, this))); 
+	io_thread_.reset(new boost::thread(boost::bind(&INetworkASIO::Run, this))); 
 	obj_io_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run, io_service_pool_)));
 	obj_work_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run, io_service_work_pool_)));
 	return true;
 }
 
- void INetworkModule::handle_accept(session_ptr callback_session, const boost::system::error_code& error)
+ void INetworkASIO::handle_accept(session_ptr callback_session, const boost::system::error_code& error)
  {
 	 if (!error) 
 	 { 
@@ -102,30 +102,31 @@ bool INetworkModule::Listen(Port port, int backlog, NetID netid_out, const char 
 	 @time_out		建立网络连接动作的超时时间，单位毫秒，默认为3000
 	 @Return		是否连接成功
 	*/
-bool INetworkModule::Connect(const char *ip, Port port, NetID netid_out, unsigned long time_out)
+bool INetworkASIO::Connect(const char *ip, Port port, NetID netid_out, unsigned long time_out)
 {
 	session_ptr new_session( new INetworkSession(io_service_,io_service_));
 	// 连接端点，这里使用了本机连接，可以修改IP地址测试远程连接
 	ip::tcp::endpoint ep(ip::address_v4::from_string(ip), port);
 	// 连接服务器
 	boost::system::error_code ec;
-	new_session->socket().async_connect(ep, boost::bind(&INetworkModule::handle_connect,this,new_session,netid_out,boost::asio::placeholders::error));
+	new_session->socket().async_connect(ep, boost::bind(&INetworkASIO::handle_connect,this,new_session,netid_out,boost::asio::placeholders::error));
 	//因为io_service.run会堵塞线程 所以用一个线程来防堵塞
-	io_thread_.reset(new boost::thread(boost::bind(&INetworkModule::Run, this))); 
+	io_thread_.reset(new boost::thread(boost::bind(&INetworkASIO::Run, this))); 
 	return true;
 }
 
   /*
 	 异步ping回调
 	 */
-void INetworkModule::handle_connect(session_ptr callback_session,NetID netid_out,const boost::system::error_code& error)
+void INetworkASIO::handle_connect(session_ptr callback_session,NetID netid_out,const boost::system::error_code& error)
 {
 	if (!error)
 	{
 		callback_session->set_netid(netid_out);
 		callback_session->RegisterCallback(callback_);
 		callback_session->start();
-		ServerList_.insert(std::make_pair(netid_out,callback_session));
+		//ServerList_.insert(std::make_pair(netid_out,callback_session));
+		NetIDList_.insert(std::make_pair(netid_out,callback_session));
 		callback_session->write("hello my is client");
 	}
 }
@@ -138,9 +139,15 @@ void INetworkModule::handle_connect(session_ptr callback_session,NetID netid_out
 	@length		消息包长度
 	@Return		是否成功放到待发送队列中
 */
-bool INetworkModule::Send(NetID netid, const char *data, unsigned int length)
+bool INetworkASIO::Send(NetID netid, const char *data, unsigned int length)
 {
-	
+	auto it = NetIDList_.find(netid);
+	if (it!=NetIDList_.end())
+	{
+		//目标对象存在可以发送消息
+		session_ptr callback_session = it->second;
+		callback_session->write(data);
+	}
 	return true;
 }
 
@@ -148,7 +155,7 @@ bool INetworkModule::Send(NetID netid, const char *data, unsigned int length)
 
 
 
-int INetworkModule::Update()
+int INetworkASIO::Update()
 {
 	ip::tcp::socket socket(io_service_);
 	// 等待直到客户端连接进来

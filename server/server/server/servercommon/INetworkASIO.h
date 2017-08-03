@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef INETWORKMODULE_H
-#define INETWORKMODULE_H
+#ifndef INETWORKASIO_H
+#define INETWORKASIO_H
 #ifdef _MSC_VER
 #define _WIN32_WINNT 0x0501
 #endif
@@ -345,12 +345,12 @@ private:
 
 
 
-class INetworkModule 
+class INetworkASIO 
 {
 public:
-	INetworkModule(std::size_t io_service_pool_size);
-	INetworkModule();
-	~INetworkModule();
+	INetworkASIO(std::size_t io_service_pool_size);
+	INetworkASIO();
+	~INetworkASIO();
 public:
 	 int Init();
 	 int Start();

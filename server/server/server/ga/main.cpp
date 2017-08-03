@@ -1,5 +1,5 @@
 #include <iostream>
-#include "INetworkModule.h"
+#include "INetworkASIO.h"
 
 
 
@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
 
 	std::cout<<"start--------------------------------"<<std::endl;
-	INetworkModule* net_work = new INetworkModule();
+	INetworkASIO* net_work = new INetworkASIO();
 	
 	net_work->Connect("192.168.1.136",7001,1,3000);
 	std::cout<<"test"<<std::endl;

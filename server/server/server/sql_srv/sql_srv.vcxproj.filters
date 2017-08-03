@@ -18,27 +18,24 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="mysqlmanager.cpp">
+    <ClCompile Include="..\servercommon\INetworkASIO.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="mysqlcallback.cpp">
+    <ClCompile Include="..\servercommon\mysqlcallback.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="INetworkASIO.cpp">
+    <ClCompile Include="..\servercommon\mysqlmanager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mysqlmanager.h">
+    <ClInclude Include="..\servercommon\INetworkASIO.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="singleton.h">
+    <ClInclude Include="..\servercommon\mysqlcallback.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="mysqlcallback.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="INetworkASIO.h">
+    <ClInclude Include="..\servercommon\mysqlmanager.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

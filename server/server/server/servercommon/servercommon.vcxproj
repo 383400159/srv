@@ -170,13 +170,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="INetworkModule.cpp" />
+    <ClCompile Include="INetworkASIO.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mysqlcallback.cpp" />
     <ClCompile Include="mysqlmanager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="INetworkModule.h" />
+    <ClInclude Include="INetworkASIO.h" />
     <ClInclude Include="mysqlcallback.h" />
     <ClInclude Include="mysqlmanager.h" />
     <ClInclude Include="singleton.h" />
