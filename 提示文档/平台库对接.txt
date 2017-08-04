@@ -1,0 +1,42 @@
+平台库涉及到的文件
+\Server\Old\lib\iceroomlib  目录下的所有文件，包括 头文件和 .a 文件。 此目录为服务器依赖的平台库文件
+svn更新到最新，将平台库头文件拷贝到 \Server\New\server\3rdpart\zy\include\iceclientlib 路径下
+将 .a 文件拷贝到 h\Server\New\server\3rdpart\zy\lib 路径下
+\UnionFish\Server\New\server\src\CMakeLists.txt  加入平台库头文件对应的路径
+----------------------------------------------------------------------------------------
+房间的头文件改放在Room目录下，ZYICEInterface.h里面接口是房间通用接口，游戏专用接口会在Room/游戏名/目录里面
+
+login服
+\Server\New\server\src\login_srv\CMakeLists.txt  将依赖的平台库文件加入到cmake中
+\Server\New\server\src\login_srv\zy_platform_hall 该目录为封装装平台库大厅接口的文件
+\Server\New\server\src\login_srv\zy_platform_hall\zy_hall_interface_srv.h 封装平台库大厅接口，暴露给外部调用
+\Server\New\server\src\login_srv\zy_platform_hall\myhall_callback.h  封装平台库调用的异步返回
+\Server\New\server\src\login_srv\loginservermodule.cpp  调用平台库大厅封装接口的 init 和 update 函数
+----------------------------------------------------------------------------------------
+
+gl服
+\Server\New\server\src\global_srv\CMakeLists.txt  将依赖的平台库文件加入到cmake中
+\Server\New\server\src\global_srv\zy_platform_hall 该目录为封装装平台库大厅接口的文件
+\Server\New\server\src\global_srv\zy_platform_hall\zy_hall_interface_srv.h 封装平台库大厅接口，暴露给外部调用
+\Server\New\server\src\global_srv\zy_platform_hall\myhall_callback.h  封装平台库调用的异步返回
+\Server\New\server\src\global_srv\globalservermodule.cpp  调用平台库大厅封装接口的 init 和 update 函数
+
+\Server\New\server\src\global_srv\gamelogic\script\interface\zy_hall_export.h  封装提供给lua调用的平台库大厅接口
+\Server\New\server\src\global_srv\gamelogic\script\export\zy_hall_export.cpp  封装提供给lua调用的平台库大厅接口的实现
+\Server\New\server\src\global_srv\gamelogic\script\scp\server_interface.scp  加入一行代码：  $cfile "../interface/zy_hall_export.h"
+双击 \Server\New\server\src\tolua++.bat  生成lua识别的c++文件  \Server\New\server\src\global_srv\gamelogic\script\scp\server_interface.cpp
+
+以玩家进入游戏为例
+玩家进入游戏，进入 \Server\New\server\src\global_script\src\handler\handler_scene.lua 文件的lua函数 on_role_enter_game
+在该函数中调用获取玩家基础数据接口 CppSrv.get_player_base_data(...)
+在 \Server\New\server\src\global_script\src\expcpp\handler_export.lua 文件的 get_player_data_callback 函数可处理获取玩家基础数据的回调
+
+----------------------------------------------------------------------------------------
+
+gw服
+\Server\New\server\src\game_srv\CMakeLists.txt  将依赖的平台库文件加入到cmake中
+\Server\New\server\src\game_srv\zy_platform_room 该目录为封装装平台库房间接口的文件
+\Server\New\server\src\game_srv\zy_platform_room\zy_room_interface_srv.h 封装平台库房间接口，暴露给外部调用
+\Server\New\server\src\game_srv\zy_platform_room\myroom_callback.h  封装平台库调用的异步返回
+\Server\New\server\src\game_srv\gameworldmodule.cpp  调用平台库房间封装接口的 init 和 update 函数
+

@@ -1,0 +1,26 @@
+1.上传已经编译好的安装包 fish_publish_release.tar.bz2
+2.解压fish_publish_release.tar.bz2
+3.cp -r ~/fish_publish_release/lib lib/   执行一次即可 主要是链接服务器所需要的lib
+4.vi /etc/ld.so.conf 在里面添加一行/root/lib 然后在执行/sbin/ldconfig –v 
+5.链接平台所需要的lib 可以从其他地方copy过去 直接放在root/lib里面 在/sbin/ldconfig –v 一次即可
+120.25.73.137上面的包是pt_lib.tar.bz2 直接解压就行 tar xjvf pt_lib.tar.bz2
+6.将fish_publish_release/server/client.cfg cp到/client.cfg 这样以后有新包不需要修改配置了
+7.修改/client.cfg 平台地址
+8.将fish_publish_release/server/serverconfig.xml  cp到/serverconfig.xml  这个是服务器地址 端口设置 单独拿出来 防止每次都要设置 
+7.修改/serverconfig.xml 当前服务器地址 修改平台gameid
+9.执行下方的脚本publish-release.sh
+
+以上是第一次配置要注意的
+--------------------------------------------------------------------------------------------
+以下就是执行脚本即可
+
+
+99.执行脚本publish-release.sh 注意这脚本会关闭服务器以后再重启 不是热更
+
+
+
+----------------
+以下是热更
+1.上传热更包 syncdata_release.tar.bz2
+2.执行热更脚本 ./reload release 
+3.这步暂时需要控制面板操作才能进行热更

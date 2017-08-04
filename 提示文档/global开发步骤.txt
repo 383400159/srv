@@ -1,0 +1,16 @@
+1.写协议
+NP_CS_
+NP_CS_
+
+2.添加excel 协议描述
+data/protocol/protocol.xls 每个系统预留50
+
+3.先生成协议，再生成xls（4,3）
+
+4.global_script/src/object/ctl/xxxx_control_t.lua 模板生成
+
+5.global_script/src/object/role_t.lua 添加 require_ex ""
+6. role 模块添加 xxxxxx_control.new(self)
+7.ga_srv.vxproj 添加cs协议编译引用
+8.写逻辑
+9.调试

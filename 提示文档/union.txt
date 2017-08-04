@@ -1,0 +1,116 @@
+D:\SVNDATA\UnionFish\Server\New\server\src\Debug _start 1
+D:\SVNDATA\UnionFish\Server\New\server\src\Debug\serverconfig.xml LinkCtrl.lua  配置ip
+
+120.77.63.134
+
+120.77.63.134
+zy
+zy2016
+
+svn
+pf
+pf2233
+
+192.168.1.45
+root
+root
+192.168.1.45
+cd workspace/server/src ./cbuild.sh debug
+
+
+
+120.77.63.134
+cd fish_publish_debug/server sudo ./quickstop.sh
+
+先 ./publish_fish.sh
+
+cd  cd fish_publish_debug/server/
+./checkstatus.sh 
+sudo ./quickstop.sh 
+vim serverconfig.xml %s/192.168.1.45/120.77.63.134/g
+ cd ..
+rm scriptcommon 
+ln -s ../scriptcommon 
+cd server/
+sudo ./start.sh 
+
+
+tail errlog 
+history 看操作日志
+export LC_ALL="C"
+
+ctrl+alt+p 注入断点
+局部调试
+
+gdb 调试
+http://blog.csdn.net/hanchaoman/article/details/5583457
+
+
+
+
+以前那台测试太卡太多人用来，你们现在换一台
+ip 120.24.73.222
+user zy
+pwd zy2016
+
+
+
+ulimit -c unlimited
+加载数据
+game_script   gamesrv_load_config  
+res_mgr 	load 头文件
+
+多台机发布
+Nodes 节点下面改ip  LocalAddr NodeClient 改成指定服务器地址
+NodeCoordinate 为中心服务器 被指定的需要改
+
+http://www.linuxidc.com/Linux/2016-07/133128.htm
+http://www.cnblogs.com/zhangzhu/archive/2013/07/04/3172486.html
+重启数据库
+sudo restart mysql 
+
+
+#mysql 安装
+sudo apt-get install mysql-server mysql-client     
+# lua mysql 开发驱动安装
+sudo apt-get install lua-sql-mysql-dev
+http://www.linuxidc.com/Linux/2014-01/95501.htm
+
+改ip 端口 
+创建新服务器 解压boost 链接fish_publish_debug/scriptcommon 链接ice
+
+//apache + ftp 服务器
+//解决ftp权限上传的问题 需要把ftp目录放在/var/www/html 下面
+http://blog.csdn.net/tianyinlove/article/details/45156249
+http://blog.csdn.net/emperor10juv/article/details/52705590
+Ubuntu+Apache+PHP+Mysql环境搭建（完整版）
+http://www.2cto.com/os/201505/401588.html
+
+
+120平台ftp
+sftp://120.24.73.222 rgtest 123456 22端口
+外网正式热更服务器
+sftp://120.25.76.146 rgftp Fish3D2017 22端口
+http://120.25.76.146/rg/test.lua 地址测试
+
+-----bulid release版本要软连接
+ln -s ~/workspace/server/src/scriptcommon/ scriptcommon
+cp ~/fish_publish_debug/server/serverconfig.xml serverconfig.xml 
+
+
+正式服服务器
+120.25.73.137 Fish3D2017
+服务器:3D捕鱼游戏服务器
+120.24.60.231  密码:Fish3D2017(区分大小写)
+服务器19:3D捕鱼游戏资源热更服务器
+120.25.76.146 密码:Fish3D2017(区分大小写)
+
+正式版 ：
+登陆地址 http://112.74.100.29:8085/
+支付回调地址 http://120.24.1.94:8086/3dfish
+
+线号先用 10010100
+然后每个其它渠道你们加第6位如:（10010200） 
+
+pid: 5ca2d3904de4614a
+Ice.Default.Locator=ZYMagic/Locator:tcp -h 10.116.21.9 -p 51001:tcp -h 10.44.99.192 -p 51002
