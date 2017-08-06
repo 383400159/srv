@@ -1,7 +1,18 @@
 #include <iostream>
 #include "INetworkASIO.h"
 #include "mysqlmanager.h"
+#include "MyMessage.pb.h"
 using namespace std;
+
+//lua 头文件
+extern "C"
+{
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
+};
+
+
 /*
 int main()
 {
@@ -23,8 +34,86 @@ int main()
 	return 0;
 }
 */
+void testSimpleMessage()
+{
+	printf("==================This is simple message.================\n");
+	//序列化LogonReqMessage对象到指定的内存区域。
+	net_protocol::LogonReqMessage logonReq;
+	logonReq.set_acctid(20);
+	logonReq.set_passwd("Hello World");
+	//提前获取对象序列化所占用的空间并进行一次性分配，从而避免多次分配
+	//而造成的性能开销。通过该种方式，还可以将序列化后的数据进行加密。
+	//之后再进行持久化，或是发送到远端。
+	int length = logonReq.ByteSize();
+	char* buf = new char[length];
+	logonReq.SerializeToArray(buf,length);
+
+	//从内存中读取并反序列化LogonReqMessage对象，同时将结果打印出来。
+	net_protocol::LogonReqMessage logonReq2;
+	logonReq2.ParseFromArray(buf,length);
+	printf("acctID = %I64d, password = %s\n",logonReq2.acctid(),logonReq2.passwd().c_str());
+	delete [] buf;
+}
 
 
+void call_lua(){
+
+	//打开Lua
+	lua_State *L = luaL_newstate();
+	/*加载lua所有库*/
+	luaL_openlibs(L);
+
+	/*加载test.lua文件并运行*/
+	int bRet = luaL_dofile(L, "../global_script/premain.lua");
+	if (bRet)
+	{
+		cout << "load file error" << endl;
+		return;
+	}
+ 
+	lua_getglobal(L, "add_path_to_env");        // 获取函数，压入栈中  
+	lua_pushstring(L, "../global_script/?.lua;");          // 压入参数  
+	int iRet = lua_pcall(L, 1, 1, 0);// 调用函数，调用完成以后，会将返回值压入栈中，第一个1表示参数个数，第二个1表示返回结果个数。 
+
+	lua_getglobal(L, "add_path_to_env");        // 获取函数，压入栈中  
+	lua_pushstring(L, "../global_script/src/?.lua;");          // 压入参数  
+	iRet = lua_pcall(L, 1, 1, 0);// 调用函数，调用完成以后，会将返回值压入栈中，第一个1表示参数个数，第二个1表示返回结果个数。
+
+	lua_getglobal(L, "add_path_to_env");        // 获取函数，压入栈中  
+	lua_pushstring(L, "../global_script/src/protocol/?.lua;");          // 压入参数  
+	iRet = lua_pcall(L, 1, 1, 0);// 调用函数，调用完成以后，会将返回值压入栈中，第一个1表示参数个数，第二个1表示返回结果个数。
+
+	lua_getglobal(L, "add_path_to_env");        // 获取函数，压入栈中  
+	lua_pushstring(L, "../global_script/src/db_param/?.lua;");          // 压入参数  
+	iRet = lua_pcall(L, 1, 1, 0);// 调用函数，调用完成以后，会将返回值压入栈中，第一个1表示参数个数，第二个1表示返回结果个数。
+
+	int cRet = luaL_dofile(L, "../global_script/main.lua");
+	if (cRet)
+	{
+		cout << "load file error" << endl;
+		return;
+	}
+	
+	int dRet = luaL_dofile(L, "../global_script/src/server.lua");
+	if (dRet)                       // 调用出错  
+	{
+		const char *pErrorMsg = lua_tostring(L, -1);
+		cout << pErrorMsg << endl;
+		lua_close(L);
+		return;
+	}
+
+	/*清除lua*/
+	lua_close(L);
+	getchar();
+}
+
+void main()
+{
+	call_lua();
+}
+
+/*
 int main(int argc, char *argv[])
 {
 
@@ -38,8 +127,9 @@ int main(int argc, char *argv[])
 	client_net_work->Listen(19001,5);
 
 	std::cout<<"test"<<std::endl;
+
 	getchar(); 
 	return 0;
 }
-
+*/
 

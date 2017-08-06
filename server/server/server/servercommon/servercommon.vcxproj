@@ -92,18 +92,21 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\lib\boost\include\boost-1_63;..\..\..\lib\mysql\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\lib\boost\include\boost-1_63;..\..\..\lib\mysql\include;..\..\..\lib\protobuf\include;..\..\..\lib\lua-5.1.5\src;..\..\..\lib\tolua++\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_D_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\lib\boost\lib;..\..\..\lib\mysql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\lib\boost\lib;..\..\..\lib\mysql\lib;..\..\..\lib\protobuf\w32\debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libmysql.lib;libprotobuf.lib;libprotoc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -171,15 +174,29 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="INetworkASIO.cpp" />
+    <ClCompile Include="LuaManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MyMessage.pb.cc" />
     <ClCompile Include="mysqlcallback.cpp" />
     <ClCompile Include="mysqlmanager.cpp" />
+    <ClCompile Include="ScriptManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INetworkASIO.h" />
+    <ClInclude Include="LuaManager.h" />
+    <ClInclude Include="MyMessage.pb.h" />
     <ClInclude Include="mysqlcallback.h" />
     <ClInclude Include="mysqlmanager.h" />
+    <ClInclude Include="ScriptManager.h" />
     <ClInclude Include="singleton.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lua5.1\lua5.1.vcxproj">
+      <Project>{fb3a499b-983c-4107-9cdb-7c7a29d01a92}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\tolua++\tolua++.vcxproj">
+      <Project>{3c57be20-fc0f-4a36-8b96-68f842aa0f8f}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

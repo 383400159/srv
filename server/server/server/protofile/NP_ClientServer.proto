@@ -1,0 +1,59 @@
+syntax = "proto2";
+package net_protocol;
+
+/// 登录服协议 ///
+// header:2001
+message C2SRegister // 注册
+{
+	required string line_no		= 1; // 线号
+}
+
+// header:2002
+message C2SLogin // 通过自己平台登录
+{
+	required string init_user_name  = 1;  // 用户名
+	required string user_pwd		= 2;  // 密码
+}
+
+// header:2003
+message C2SPlatformLogin // 通过第三方平台登录
+{
+    required string line_no		    = 1; // 线号
+	required string init_user_name  = 2; // 第三方平台用户名
+	optional string verify_param    = 3; // 第三方平台登录校验需要用到的参数（可选）
+}
+
+//header:2006
+message C2SBingPhoneNumber // 手机绑定
+{
+	required string user_code		= 1; // 用户账号	
+	required string phone_number		= 2; // 手机号码
+	required string sms_code		= 3; // 手机验证码
+
+}
+
+//header:2007
+message C2SSendSMSCodeToPlayer // 获得手机验证码
+{
+	required string phone_number		= 1; // 手机号	
+	required string code_type		= 2; // 验证码类型 0:绑定手机   1:找回密码
+	required string selfparams		= 3; // 透传参数
+}
+
+
+
+/// 其他服协议 ///
+
+
+// header:10004
+message C2SEnterGame
+{
+	required string init_user_name  = 1;  // 用户名
+	required string user_pwd		= 2;  // 密码
+}
+
+// header:10005
+message C2SHeartBeat
+{
+}
+
