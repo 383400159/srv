@@ -206,6 +206,7 @@
     <ClInclude Include="..\..\..\lib\tolua++\src\tolua_event.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\lib\protoc_gen_lua\pb.c" />
     <ClCompile Include="..\..\..\lib\tolua++\src\toluabind_default.c" />
     <ClCompile Include="..\..\..\lib\tolua++\src\tolua_event.c" />
     <ClCompile Include="..\..\..\lib\tolua++\src\tolua_is.c" />

@@ -100,7 +100,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\lib\boost\include\boost-1_63;..\..\..\lib\mysql\include;..\..\..\lib\protobuf\include;..\..\..\lib\lua-5.1.5\src;..\..\..\lib\tolua++\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\lib\boost\include\boost-1_63;..\..\..\lib\mysql\include;..\..\..\lib\protobuf\include;..\..\..\lib\lua-5.1.5\src;..\..\..\lib\tolua++\src;..\..\..\lib\protoc_gen_lua</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_D_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -173,21 +173,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="exceptdump.cpp" />
     <ClCompile Include="INetworkASIO.cpp" />
-    <ClCompile Include="LuaManager.cpp" />
+    <ClCompile Include="luamanager.cpp" />
+    <ClCompile Include="lua_call_cpp\export\lua_server_export.cpp" />
+    <ClCompile Include="lua_call_cpp\scp\server_interface.cpp" />
+    <ClCompile Include="lua_server_export.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyMessage.pb.cc" />
     <ClCompile Include="mysqlcallback.cpp" />
     <ClCompile Include="mysqlmanager.cpp" />
-    <ClCompile Include="ScriptManager.cpp" />
+    <ClCompile Include="scriptmanager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="exceptdump.h" />
     <ClInclude Include="INetworkASIO.h" />
-    <ClInclude Include="LuaManager.h" />
+    <ClInclude Include="luamanager.hpp" />
+    <ClInclude Include="lua_call_cpp\interface\lua_server_export.h" />
+    <ClInclude Include="lua_server_export.h" />
     <ClInclude Include="MyMessage.pb.h" />
     <ClInclude Include="mysqlcallback.h" />
     <ClInclude Include="mysqlmanager.h" />
-    <ClInclude Include="ScriptManager.h" />
+    <ClInclude Include="scriptmanager.hpp" />
+    <ClInclude Include="server_time_mgr.hpp" />
     <ClInclude Include="singleton.h" />
   </ItemGroup>
   <ItemGroup>
@@ -197,6 +205,10 @@
     <ProjectReference Include="..\tolua++\tolua++.vcxproj">
       <Project>{3c57be20-fc0f-4a36-8b96-68f842aa0f8f}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="lua_call_cpp\scp\export_type.pkg" />
+    <None Include="lua_call_cpp\scp\server_interface.scp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -16,51 +16,104 @@
     <Filter Include="protobuf">
       <UniqueIdentifier>{96b17cd2-791e-4ee4-a432-e7fd7f15ad21}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lua_state">
+      <UniqueIdentifier>{a50d9b9a-5ee2-4888-b4e8-e57f7f1ddc11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mysql">
+      <UniqueIdentifier>{de123906-b4fe-4e42-9a63-a5d5ce3da1e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asio">
+      <UniqueIdentifier>{e93de482-92ee-4874-99de-7278199b9846}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua_state\lua_call_cpp">
+      <UniqueIdentifier>{5f94460a-33fd-496f-911a-2e6b0d44d20f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua_state\lua_call_cpp\export">
+      <UniqueIdentifier>{138123c3-7a11-4a3d-8546-d77b9caaa2c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua_state\lua_call_cpp\interface">
+      <UniqueIdentifier>{89f97f5d-e5ad-432b-a58c-a2f483949f4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua_state\lua_call_cpp\scp">
+      <UniqueIdentifier>{4ffa2321-4e06-44b3-a1cd-15ec28290fc6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="mysqlmanager.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mysqlcallback.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="INetworkASIO.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="MyMessage.pb.cc">
       <Filter>protobuf</Filter>
     </ClCompile>
-    <ClCompile Include="LuaManager.cpp">
+    <ClCompile Include="luamanager.cpp">
+      <Filter>lua_state</Filter>
+    </ClCompile>
+    <ClCompile Include="scriptmanager.cpp">
+      <Filter>lua_state</Filter>
+    </ClCompile>
+    <ClCompile Include="mysqlmanager.cpp">
+      <Filter>mysql</Filter>
+    </ClCompile>
+    <ClCompile Include="mysqlcallback.cpp">
+      <Filter>mysql</Filter>
+    </ClCompile>
+    <ClCompile Include="INetworkASIO.cpp">
+      <Filter>asio</Filter>
+    </ClCompile>
+    <ClCompile Include="exceptdump.cpp">
+      <Filter>lua_state</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_call_cpp\scp\server_interface.cpp">
+      <Filter>lua_state\lua_call_cpp\scp</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_server_export.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ScriptManager.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="lua_call_cpp\export\lua_server_export.cpp">
+      <Filter>lua_state\lua_call_cpp\export</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mysqlmanager.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="singleton.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="mysqlcallback.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="INetworkASIO.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MyMessage.pb.h">
       <Filter>protobuf</Filter>
     </ClInclude>
-    <ClInclude Include="LuaManager.h">
+    <ClInclude Include="luamanager.hpp">
+      <Filter>lua_state</Filter>
+    </ClInclude>
+    <ClInclude Include="scriptmanager.hpp">
+      <Filter>lua_state</Filter>
+    </ClInclude>
+    <ClInclude Include="mysqlmanager.h">
+      <Filter>mysql</Filter>
+    </ClInclude>
+    <ClInclude Include="mysqlcallback.h">
+      <Filter>mysql</Filter>
+    </ClInclude>
+    <ClInclude Include="INetworkASIO.h">
+      <Filter>asio</Filter>
+    </ClInclude>
+    <ClInclude Include="server_time_mgr.hpp">
+      <Filter>lua_state</Filter>
+    </ClInclude>
+    <ClInclude Include="exceptdump.h">
+      <Filter>lua_state</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_server_export.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ScriptManager.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="lua_call_cpp\interface\lua_server_export.h">
+      <Filter>lua_state\lua_call_cpp\interface</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="lua_call_cpp\scp\export_type.pkg">
+      <Filter>lua_state\lua_call_cpp\scp</Filter>
+    </None>
+    <None Include="lua_call_cpp\scp\server_interface.scp">
+      <Filter>lua_state\lua_call_cpp\scp</Filter>
+    </None>
   </ItemGroup>
 </Project>

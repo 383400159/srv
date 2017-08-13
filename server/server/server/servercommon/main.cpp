@@ -2,8 +2,10 @@
 #include "INetworkASIO.h"
 #include "mysqlmanager.h"
 #include "MyMessage.pb.h"
+#include "scriptmanager.hpp"
 using namespace std;
 
+#include "lua_call_cpp/interface/lua_server_export.h"
 //lua Í·ÎÄ¼þ
 extern "C"
 {
@@ -110,7 +112,29 @@ void call_lua(){
 
 void main()
 {
-	call_lua();
+	//call_lua();
+	std::string script_dir = "../game_script";
+	std::string data_dir = "../data";
+	std::string error;
+	if (!sScriptManager.Init(script_dir, data_dir, &error)){
+		std::cout<<"start lua state fail!!!!!!!!!!!!!!!!!"<<std::endl;
+	}	
+	int i = 0 ;
+	while (true)
+	{
+		sScriptManager.PCall("update", LARG_END);
+		i++;
+		if (i==100)
+		{
+			sScriptManager.ReloadAllScripts();
+		}
+		if (i==103)
+		{
+			break;
+		}
+	}
+
+	getchar(); 
 }
 
 /*
