@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
 	INetworkASIO* client_net_work = new INetworkASIO(8);
 	client_net_work->Listen(19001,5);
 
-	std::cout<<"test"<<std::endl;
+	std::cout<<"test:"<<std::endl;
 
 	getchar(); 
 	return 0;

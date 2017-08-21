@@ -68,6 +68,7 @@ bool INetworkASIO::Listen(Port port, int backlog, NetID netid_out, const char *i
 	io_thread_.reset(new boost::thread(boost::bind(&INetworkASIO::Run, this))); 
 	obj_io_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run, io_service_pool_)));
 	obj_work_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run, io_service_work_pool_)));
+	std::cout<<"__FUNCTION__:"<<__FUNCTION__<<std::endl;
 	return true;
 }
 
