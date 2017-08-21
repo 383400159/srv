@@ -110,6 +110,8 @@ void call_lua(){
 	getchar();
 }
 
+/*
+//lua 启动和热更
 void main()
 {
 	//call_lua();
@@ -136,8 +138,9 @@ void main()
 
 	getchar(); 
 }
+*/
 
-/*
+
 int main(int argc, char *argv[])
 {
 
@@ -155,5 +158,5 @@ int main(int argc, char *argv[])
 	getchar(); 
 	return 0;
 }
-*/
+
 
