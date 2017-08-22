@@ -141,22 +141,73 @@ void main()
 */
 
 
-int main(int argc, char *argv[])
+//int main(int argc, char *argv[])
+//{
+//
+//	std::cout<<"start--------------------------------"<<std::endl;
+//	//监听服务器之间的消息
+//	INetworkASIO* server_net_work = new INetworkASIO(2);
+//	server_net_work->Listen(7001,5);
+//
+//	//监听客户端消息
+//	INetworkASIO* client_net_work = new INetworkASIO(8);
+//	client_net_work->Listen(19001,5);
+//
+//	std::cout<<"test:"<<std::endl;
+//
+//	getchar(); 
+//	return 0;
+//}
+
+//lambda语法
+//[]  不捕获任何变量
+//[&] 以引用方式捕获所有变量
+//[=] 用值的方式捕获所有变量（可能被编译器优化为const &)
+//[=, &foo] 以引用捕获foo, 但其余变量都靠值捕获
+//[bar] 以值方式捕获bar; 不捕获其它变量
+//[this] 捕获所在类的this指针
+int main(int argc,char *argv[])
 {
+	[](){std::cout<<"hello lambda"<<std::endl;}();
 
-	std::cout<<"start--------------------------------"<<std::endl;
-	//监听服务器之间的消息
-	INetworkASIO* server_net_work = new INetworkASIO(2);
-	server_net_work->Listen(7001,5);
+	auto a = [](){return 1;}();
+	std::cout<<a<<std::endl;
 
-	//监听客户端消息
-	INetworkASIO* client_net_work = new INetworkASIO(8);
-	client_net_work->Listen(19001,5);
+	char bb='a';
+	int b = [&]()->int{return bb;}();
+	std::cout<<b<<std::endl;
 
-	std::cout<<"test:"<<std::endl;
+	[]()throw(){}();
+
+	//std::function<int ()> func;
+	//// 检测是否包含函数
+	//if ( func )
+	//{
+	//	// if we did have a function, call it
+	//	func();
+	//}
+
+	
+	auto f = [] () -> int { return 2; };
+	f();
+
+	//区间迭代
+	vector<int> vec;
+	vec.push_back( 10 );
+	vec.push_back( 20 );
+
+	for (auto i : vec )
+	{
+		cout << i;
+	}
+	
+	//vs2012不支持constexpr
+	//constexpr int getDefaultArraySize (int multiplier)
+	//{
+	//	return 10 * multiplier;
+	//}
+
+	//int my_array[ getDefaultArraySize( 3 ) ];
 
 	getchar(); 
-	return 0;
 }
-
-
