@@ -170,6 +170,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\servercommon\IInterfaceMgr.h" />
+    <ClInclude Include="..\servercommon\IModule.h" />
     <ClInclude Include="..\servercommon\INetworkASIO.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

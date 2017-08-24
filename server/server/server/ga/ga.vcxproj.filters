@@ -26,5 +26,11 @@
     <ClInclude Include="..\servercommon\INetworkASIO.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\servercommon\IInterfaceMgr.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\servercommon\IModule.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

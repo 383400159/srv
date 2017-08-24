@@ -37,6 +37,9 @@
     <Filter Include="lua_state\lua_call_cpp\scp">
       <UniqueIdentifier>{4ffa2321-4e06-44b3-a1cd-15ec28290fc6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="srv">
+      <UniqueIdentifier>{62521f5a-8d4b-4bbb-8eb7-64b859413373}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -71,6 +74,15 @@
     </ClCompile>
     <ClCompile Include="lua_call_cpp\export\lua_server_export.cpp">
       <Filter>lua_state\lua_call_cpp\export</Filter>
+    </ClCompile>
+    <ClCompile Include="IModule.cpp">
+      <Filter>srv</Filter>
+    </ClCompile>
+    <ClCompile Include="IInterfaceMgr.cpp">
+      <Filter>srv</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerMgr.cpp">
+      <Filter>srv</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,6 +119,18 @@
     <ClInclude Include="lua_call_cpp\interface\lua_server_export.h">
       <Filter>lua_state\lua_call_cpp\interface</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IModule.h">
+      <Filter>srv</Filter>
+    </ClInclude>
+    <ClInclude Include="IInterfaceMgr.h">
+      <Filter>srv</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerMgr.h">
+      <Filter>srv</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="lua_call_cpp\scp\export_type.pkg">
@@ -115,5 +139,10 @@
     <None Include="lua_call_cpp\scp\server_interface.scp">
       <Filter>lua_state\lua_call_cpp\scp</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="servercommon.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

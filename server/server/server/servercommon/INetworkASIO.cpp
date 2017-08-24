@@ -31,10 +31,7 @@ int INetworkASIO::Init()
 	return 0;
 }
 
-void INetworkASIO::Run()
-{
-	io_service_.run();
-}
+
 int INetworkASIO::Stop()
 {
 	io_service_.stop();
@@ -50,6 +47,21 @@ int INetworkASIO::Start()
 	session_ptr new_session( new INetworkSession(io_service_pool_.get_io_service(),io_service_work_pool_.get_io_service()));
 	acceptor_->async_accept(new_session->socket(), boost::bind(&INetworkASIO::handle_accept,this,new_session,boost::asio::placeholders::error));
 	return 1;
+}
+
+int INetworkASIO::Release()
+{
+
+	return 1;
+}
+void INetworkASIO::Free()
+{
+
+}
+
+void INetworkASIO::Run()
+{
+	io_service_.run();
 }
 /*
 	´´½¨¼àÌý¾ä±ú
@@ -68,7 +80,7 @@ bool INetworkASIO::Listen(Port port, int backlog, NetID netid_out, const char *i
 	io_thread_.reset(new boost::thread(boost::bind(&INetworkASIO::Run, this))); 
 	obj_io_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run, io_service_pool_)));
 	obj_work_thread_.reset(new boost::thread(boost::bind(&io_service_pool::run, io_service_work_pool_)));
-	std::cout<<"__FUNCTION__:"<<__FUNCTION__<<std::endl;
+	//std::cout<<"__FUNCTION__:"<<__FUNCTION__<<std::endl;
 	return true;
 }
 

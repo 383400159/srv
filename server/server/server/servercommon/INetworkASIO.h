@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef INETWORKASIO_H
 #define INETWORKASIO_H
 #ifdef _MSC_VER
@@ -21,6 +19,8 @@
 #include <vector>
 #include <map>
 
+
+#include "IModule.h"
 using namespace boost::asio;
 
 
@@ -183,10 +183,10 @@ private:
 		}
 
 		// in here finish the work. 
-		/*
+		
 		std::cout<<" port:"<<socket_.remote_endpoint().port() << "receive :" << bytes_transferred << " bytes." << 
 			"message :" << data_stream+12 << std::endl; 
-			*/
+			
 
 		std::string msg ;
 		for (auto i = 12; i<max_len;i++)
@@ -345,7 +345,7 @@ private:
 
 
 
-class INetworkASIO 
+class INetworkASIO : public IModule
 {
 public:
 	INetworkASIO(std::size_t io_service_pool_size);
@@ -358,6 +358,9 @@ public:
 	 int Stop();
 	 int Release();
 	 void Free();
+
+
+
 	 void Run();
 
 	/*
