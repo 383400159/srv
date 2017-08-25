@@ -13,8 +13,8 @@ ServerMgr::~ServerMgr(void)
 
 bool ServerMgr::RegisterModule(const char* name, IModule* module)
 {
-
 	m_module_map.insert(std::make_pair(name , module));
+	module->set_interface_mgr(this);
 	return true;
 }
 IModule* ServerMgr::QueryModule(const char* name)

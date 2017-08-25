@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MYSQLMOANAGER_H
-#define MYSQLMOANAGER_H
+#ifndef IMYSQLDB_H
+#define IMYSQLDB_H
 
 #ifdef _MSC_VER
 #define _WIN32_WINNT 0x0501
@@ -17,8 +17,10 @@
 #include <vector>
 #include <map>
 #include "mysql.h"
+#include "IMysqlCallBack.h"
+#include "IModule.h"
 
-#include "singleton.h"
+
 #pragma comment(lib,"libmysql.lib") 
 using namespace std;
 typedef	unsigned int		NetID;
@@ -28,13 +30,19 @@ struct SQLID
 	string sql;
 };
 typedef boost::shared_ptr<SQLID> SQLID_ptr;
-class mysqlmanager : public Singleton<mysqlmanager> 
+class IMysqlDB : public IModule
 {
 public:
-	mysqlmanager(void);
-	~mysqlmanager(void);
+	IMysqlDB(void);
+	~IMysqlDB(void);
 	//启动数据库
-	bool start();
+	int Init();
+	int Start();
+	int Update();
+	int Stop();
+	int Release();
+	void Free();
+	
 
 
 
@@ -60,6 +68,7 @@ public:
 	void log(MYSQL_RES * result);
 private:
 	MYSQL mysql_;
+	IMysqlCallBack* call_back_;
 	uint32_t sql_read_count_;
 	uint32_t sql_write_count_;
 
@@ -68,8 +77,9 @@ private:
 	//读写操作线程
 	boost::shared_ptr<boost::thread> mysql_read_ptr_; 
 	boost::shared_ptr<boost::thread> mysql_write_ptr_; 
+
+
 };
 
-#define mysqlSrv mysqlmanager::get_instance()
 
 #endif

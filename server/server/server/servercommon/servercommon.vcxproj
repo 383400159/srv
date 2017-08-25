@@ -186,8 +186,8 @@
     <ClCompile Include="lua_server_export.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyMessage.pb.cc" />
-    <ClCompile Include="mysqlcallback.cpp" />
-    <ClCompile Include="mysqlmanager.cpp" />
+    <ClCompile Include="IMysqlCallBack.cpp" />
+    <ClCompile Include="IMysqlDB.cpp" />
     <ClCompile Include="scriptmanager.cpp" />
     <ClCompile Include="ServerMgr.cpp" />
   </ItemGroup>
@@ -200,8 +200,8 @@
     <ClInclude Include="lua_call_cpp\interface\lua_server_export.h" />
     <ClInclude Include="lua_server_export.h" />
     <ClInclude Include="MyMessage.pb.h" />
-    <ClInclude Include="mysqlcallback.h" />
-    <ClInclude Include="mysqlmanager.h" />
+    <ClInclude Include="IMysqlCallBack.h" />
+    <ClInclude Include="IMysqlDB.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="scriptmanager.hpp" />
     <ClInclude Include="ServerMgr.h" />

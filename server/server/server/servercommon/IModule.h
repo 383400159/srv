@@ -16,6 +16,7 @@ public:
 
 	/* 此函数释放自己所占用的空间，调用此函数后，Game将不再使用此模块的指针 */
 	virtual void Free()=0;
+	void set_interface_mgr(IInterfaceMgr* i){m_interface_mgr = i;}
 	IInterfaceMgr* Interface(){ return m_interface_mgr; }
 private:
 	IInterfaceMgr* m_interface_mgr;

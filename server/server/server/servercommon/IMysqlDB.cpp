@@ -1,7 +1,7 @@
-#include "mysqlmanager.h"
-#include "mysqlcallback.h"
+#include "IMysqlDB.h"
 
-mysqlmanager::mysqlmanager(void)
+
+IMysqlDB::IMysqlDB(void)
 {
 	//
 	mysql_init(&mysql_);
@@ -10,10 +10,13 @@ mysqlmanager::mysqlmanager(void)
 	mysql_read_ptr_.reset();
 	mysql_write_ptr_.reset();
 	mysql_write_ptr_.use_count();
+
+
+	call_back_ = new IMysqlCallBack();
 }
 
 
-mysqlmanager::~mysqlmanager(void)
+IMysqlDB::~IMysqlDB(void)
 {
 	mysql_close(&mysql_);//断开连接
 	auto a = mysql_read_ptr_.use_count();
@@ -27,10 +30,32 @@ mysqlmanager::~mysqlmanager(void)
 		mysql_write_ptr_->join();
 	}
 
+	
+	delete call_back_;
 }
 
+int IMysqlDB::Init()
+{
+	return 1;
+}
+int IMysqlDB::Update()
+{
+	return 1;
+}
+int IMysqlDB::Stop()
+{
+	return 1;
+}
+int IMysqlDB::Release()
+{
+	return 1;
+}
+void IMysqlDB::Free()
+{
 
-bool mysqlmanager::start()
+}
+
+int IMysqlDB::Start()
 {
 	const char user[] = "root";         //username
 	const char pswd[] = "p925f990";         //password
@@ -53,7 +78,7 @@ bool mysqlmanager::start()
 }
 
 
-void mysqlmanager::read(NetID netid,string sql)
+void IMysqlDB::read(NetID netid,string sql)
 {	
 	//消息唯一号
 	sql_read_count_ ++ ;
@@ -73,12 +98,12 @@ void mysqlmanager::read(NetID netid,string sql)
 	if (read_sql_list_.size()==1)
 	{
 		//启动查询线程
-		mysql_read_ptr_.reset(new boost::thread(boost::bind(&mysqlmanager::thread_read, this)));
+		mysql_read_ptr_.reset(new boost::thread(boost::bind(&IMysqlDB::thread_read, this)));
 	}
 }
 
 
-void mysqlmanager::thread_read()
+void IMysqlDB::thread_read()
 {
 
 	if (read_sql_list_.size()>0 )
@@ -96,17 +121,17 @@ void mysqlmanager::thread_read()
 			if(result_)
 			{
 				this->log(result_);
-				mysqlCallBack.read_callback(0,netid);
+				call_back_->read_callback(0,netid);
 				if(result_!=NULL) mysql_free_result(result_);//使用完以后 释放结果资源
 			}
 			else
 			{
-				mysqlCallBack.read_callback(1,netid);
+				call_back_->read_callback(1,netid);
 			}
 		}
 		else
 		{
-			mysqlCallBack.read_callback(2,netid);
+			call_back_->read_callback(2,netid);
 			//cout<<"query sql failed!"<<endl;
 		}
 		
@@ -114,17 +139,17 @@ void mysqlmanager::thread_read()
 		read_sql_list_.erase(it);
 		if (read_sql_list_.size()>0)
 		{
-			mysql_read_ptr_.reset(new boost::thread(boost::bind(&mysqlmanager::thread_read, this)));
+			mysql_read_ptr_.reset(new boost::thread(boost::bind(&IMysqlDB::thread_read, this)));
 		}
 	}
 }
 
-void mysqlmanager::read_callback(int ret,NetID netid)
+void IMysqlDB::read_callback(int ret,NetID netid)
 {
 	cout<<"query_callback ret:"<<ret<<" netid:"<<netid<<endl;
 }
 //写入数据
-bool mysqlmanager::write(NetID netid,string sql)
+bool IMysqlDB::write(NetID netid,string sql)
 {
 
 	//消息唯一号
@@ -145,7 +170,7 @@ bool mysqlmanager::write(NetID netid,string sql)
 	if (write_sql_list_.size()==1)
 	{
 		//启动查询线程
-		mysql_write_ptr_.reset(new boost::thread(boost::bind(&mysqlmanager::thread_write, this)));
+		mysql_write_ptr_.reset(new boost::thread(boost::bind(&IMysqlDB::thread_write, this)));
 	}
 
 	return true;
@@ -153,7 +178,7 @@ bool mysqlmanager::write(NetID netid,string sql)
 
 
 
-void mysqlmanager::thread_write()
+void IMysqlDB::thread_write()
 {
 
 	if (write_sql_list_.size()>0 )
@@ -167,29 +192,29 @@ void mysqlmanager::thread_write()
 		auto res=mysql_real_query(&mysql_,send,strlen(send));//查询
 		if(!res)
 		{
-			mysqlCallBack.write_callback(0,netid);
+			call_back_->write_callback(0,netid);
 		}
 		else
 		{
-			mysqlCallBack.write_callback(1,netid);
+			call_back_->write_callback(1,netid);
 		}
 
 		//删除查询
 		write_sql_list_.erase(it);
 		if (write_sql_list_.size()>0)
 		{
-			mysql_write_ptr_.reset(new boost::thread(boost::bind(&mysqlmanager::thread_write, this)));
+			mysql_write_ptr_.reset(new boost::thread(boost::bind(&IMysqlDB::thread_write, this)));
 		}
 	}
 }
 
-void mysqlmanager::write_callback(int ret,NetID netid)
+void IMysqlDB::write_callback(int ret,NetID netid)
 {
 	cout<<"write_callback ret:"<<ret<<" netid:"<<netid<<endl;
 }
 
 
-void mysqlmanager::get_data_by_key(NetID netid,string key)
+void IMysqlDB::get_data_by_key(NetID netid,string key)
 {
 	string read_sql = "select * from keydata where ";
 	read_sql = read_sql + " pkey = " + '"' + key + '"';
@@ -197,7 +222,7 @@ void mysqlmanager::get_data_by_key(NetID netid,string key)
 }
 
 
-void mysqlmanager::get_data_by_two_key(NetID netid,string key,string key1)
+void IMysqlDB::get_data_by_two_key(NetID netid,string key,string key1)
 {
 	string read_sql = "select * from twokeydata where ";
 	read_sql = read_sql + " pkey = " + '"' + key + '"';
@@ -208,7 +233,7 @@ void mysqlmanager::get_data_by_two_key(NetID netid,string key,string key1)
 	this->read(netid,read_sql);
 }
 
-void mysqlmanager::write_data_by_key(NetID netid,string key,string val)
+void IMysqlDB::write_data_by_key(NetID netid,string key,string val)
 {
 	//insert into keydata(pkey,pval) values("ssss","yyyy")  on DUPLICATE KEY UPDATE pval = "ttttst"
 	
@@ -217,7 +242,7 @@ void mysqlmanager::write_data_by_key(NetID netid,string key,string val)
 	write_sql = write_sql + " on DUPLICATE KEY UPDATE pval = " + '"' + val + '"';
 	this->write(netid,write_sql);
 }
-void mysqlmanager::write_data_by_two_key(NetID netid,string key,string key1,string val)
+void IMysqlDB::write_data_by_two_key(NetID netid,string key,string key1,string val)
 {
 	string write_sql = "insert into twokeydata(pkey,pkey1,pval) ";
 	write_sql = write_sql + " values(" + '"' + key + '"' + ","+ '"' + key1 + '"' + "," + '"' + val + '"'+ ")" ;
@@ -225,7 +250,7 @@ void mysqlmanager::write_data_by_two_key(NetID netid,string key,string key1,stri
 	this->write(netid,write_sql);
 }
 
-void mysqlmanager::log(MYSQL_RES * result)
+void IMysqlDB::log(MYSQL_RES * result)
 {
 	MYSQL_ROW sql_row;
 	MYSQL_FIELD *fd;

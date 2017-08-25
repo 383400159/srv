@@ -1,7 +1,7 @@
 #include <iostream>
 #include "ServerMgr.h"
 #include "INetworkASIO.h"
-#include "mysqlmanager.h"
+#include "IMysqlDB.h"
 #include "MyMessage.pb.h"
 #include "scriptmanager.hpp"
 using namespace std;
@@ -16,27 +16,27 @@ extern "C"
 };
 
 
-/*
-int main()
-{
-	//auto mysql = new mysqlmanager();
-	mysqlSrv.start();
-	
-	mysqlSrv.write_data_by_two_key(1,"testkey","testkey1","testVAL666 TEST");
-	//mysql->read(1,"select * from test");
-	//mysql->read(2,"select * from test1");
-	//mysql->write(1,"update test set degree=88.8");
-	//mysql->write(2,"update test1 set degree=888");
-	//const char * sql = "update test set degree=888 ";
-	
 
-	
-	
-	//mysql->write();
-	getchar(); 
-	return 0;
-}
-*/
+//int main()
+//{
+//	auto mysql = new IMysqlDB();
+//	mysql->Start();
+//	
+//	mysql->write_data_by_two_key(1,"testkey","testkey1","testVAL666 TEST");
+//	//mysql->read(1,"select * from test");
+//	//mysql->read(2,"select * from test1");
+//	//mysql->write(1,"update test set degree=88.8");
+//	//mysql->write(2,"update test1 set degree=888");
+//	//const char * sql = "update test set degree=888 ";
+//	
+//
+//	
+//	
+//	//mysql->write();
+//	getchar(); 
+//	return 0;
+//}
+
 void testSimpleMessage()
 {
 	printf("==================This is simple message.================\n");
@@ -154,13 +154,17 @@ int main(int argc, char *argv[])
 	INetworkASIO* client_net_work = new INetworkASIO(8);
 	client_net_work->Listen(19002,5);
 
-	//std::cout<<"test:"<<std::endl;
+	IMysqlDB* sql_mgr = new IMysqlDB();
+
 
 	ServerMgr * server_mgr = new ServerMgr();
-	server_mgr->RegisterModule("INetworkASIO",server_net_work);
+	//向服务器注册节点
+	server_mgr->RegisterModule("ServerINetworkASIO",server_net_work);
+	server_mgr->RegisterModule("ClientINetworkASIO",client_net_work);
+	server_mgr->RegisterModule("IMysqlDB",sql_mgr);
 
-	auto asio1 = dynamic_cast<INetworkASIO *>(server_mgr->QueryModule("INetworkASIO"));
-//	auto asio2 = asio1->Interface()->QueryModule("INetworkASIO");
+	//auto asio1 = dynamic_cast<INetworkASIO *>(server_mgr->QueryModule("INetworkASIO"));
+	//auto asio2 = asio1->Interface()->QueryModule("INetworkASIO");
 	//asio1->Listen(7002,5);
 	getchar(); 
 	delete server_net_work;
