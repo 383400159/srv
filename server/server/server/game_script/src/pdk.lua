@@ -7,7 +7,7 @@ local sort = table.sort
 
 --测试入口 play传入类型决定要测试的类型 CppSrv.DebugLog 换成print 或者封装的c++ log接口即可
 function run()
-	--playdata 及 tipsdata 组成 例如:{2,3,3} 代表{双牌,5,5} 第一个代表类型
+	--playdata 及 tipsdata 组成 例如:{2,3,3} 代表{双牌,"5","5"} 第一个代表类型
 	local playdata = play(7)
 	local playstr = tableToStr(playdata)
 	CppSrv.DebugLog("pdk play:"..playstr)
