@@ -1,5 +1,4 @@
- i = i or 1
+require "pdk"
 function update()
-	CppSrv.DebugLog("update:"..i)
-	i = i + 1
+	pdk:run()
 end

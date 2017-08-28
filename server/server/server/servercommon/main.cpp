@@ -111,7 +111,7 @@ void call_lua(){
 	getchar();
 }
 
-/*
+
 //lua 启动和热更
 void main()
 {
@@ -125,7 +125,11 @@ void main()
 	int i = 0 ;
 	while (true)
 	{
+		std::cout<<"按下任意键开始热更"<<std::endl;
+		getchar(); 
+		sScriptManager.ReloadAllScripts();
 		sScriptManager.PCall("update", LARG_END);
+		/*sScriptManager.PCall("update", LARG_END);
 		i++;
 		if (i==100)
 		{
@@ -134,44 +138,44 @@ void main()
 		if (i==103)
 		{
 			break;
-		}
+		}*/
 	}
 
 	getchar(); 
 }
-*/
 
 
-int main(int argc, char *argv[])
-{
-
-	std::cout<<"start--------------------------------"<<std::endl;
-	//监听服务器之间的消息
-	INetworkASIO* server_net_work = new INetworkASIO(2);
-	server_net_work->Listen(7002,5);
-
-	//监听客户端消息
-	INetworkASIO* client_net_work = new INetworkASIO(8);
-	client_net_work->Listen(19002,5);
-
-	IMysqlDB* sql_mgr = new IMysqlDB();
-
-
-	ServerMgr * server_mgr = new ServerMgr();
-	//向服务器注册节点
-	server_mgr->RegisterModule("ServerINetworkASIO",server_net_work);
-	server_mgr->RegisterModule("ClientINetworkASIO",client_net_work);
-	server_mgr->RegisterModule("IMysqlDB",sql_mgr);
-
-	//auto asio1 = dynamic_cast<INetworkASIO *>(server_mgr->QueryModule("INetworkASIO"));
-	//auto asio2 = asio1->Interface()->QueryModule("INetworkASIO");
-	//asio1->Listen(7002,5);
-	getchar(); 
-	delete server_net_work;
-	delete client_net_work;
-	delete server_mgr;
-	return 0;
-}
+//
+//int main(int argc, char *argv[])
+//{
+//
+//	std::cout<<"start--------------------------------"<<std::endl;
+//	//监听服务器之间的消息
+//	INetworkASIO* server_net_work = new INetworkASIO(2);
+//	server_net_work->Listen(7002,5);
+//
+//	//监听客户端消息
+//	INetworkASIO* client_net_work = new INetworkASIO(8);
+//	client_net_work->Listen(19002,5);
+//
+//	IMysqlDB* sql_mgr = new IMysqlDB();
+//
+//
+//	ServerMgr * server_mgr = new ServerMgr();
+//	//向服务器注册节点
+//	server_mgr->RegisterModule("ServerINetworkASIO",server_net_work);
+//	server_mgr->RegisterModule("ClientINetworkASIO",client_net_work);
+//	server_mgr->RegisterModule("IMysqlDB",sql_mgr);
+//
+//	//auto asio1 = dynamic_cast<INetworkASIO *>(server_mgr->QueryModule("INetworkASIO"));
+//	//auto asio2 = asio1->Interface()->QueryModule("INetworkASIO");
+//	//asio1->Listen(7002,5);
+//	getchar(); 
+//	delete server_net_work;
+//	delete client_net_work;
+//	delete server_mgr;
+//	return 0;
+//}
 
 //lambda语法
 //[]  不捕获任何变量
