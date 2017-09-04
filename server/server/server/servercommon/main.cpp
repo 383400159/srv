@@ -113,36 +113,37 @@ void call_lua(){
 
 
 //lua 启动和热更
-void main()
-{
-	//call_lua();
-	std::string script_dir = "../game_script";
-	std::string data_dir = "../data";
-	std::string error;
-	if (!sScriptManager.Init(script_dir, data_dir, &error)){
-		std::cout<<"start lua state fail!!!!!!!!!!!!!!!!!"<<std::endl;
-	}	
-	int i = 0 ;
-	while (true)
-	{
-		std::cout<<"按下任意键开始热更"<<std::endl;
-		getchar(); 
-		sScriptManager.ReloadAllScripts();
-		sScriptManager.PCall("update", LARG_END);
-		/*sScriptManager.PCall("update", LARG_END);
-		i++;
-		if (i==100)
-		{
-			sScriptManager.ReloadAllScripts();
-		}
-		if (i==103)
-		{
-			break;
-		}*/
-	}
-
-	getchar(); 
-}
+//
+//void main()
+//{
+//	//call_lua();
+//	std::string script_dir = "../game_script";
+//	std::string data_dir = "../data";
+//	std::string error;
+//	if (!sScriptManager.Init(script_dir, data_dir, &error)){
+//		std::cout<<"start lua state fail!!!!!!!!!!!!!!!!!"<<std::endl;
+//	}	
+//	int i = 0 ;
+//	while (true)
+//	{
+//		std::cout<<"按下任意键开始热更"<<std::endl;
+//		getchar(); 
+//		sScriptManager.ReloadAllScripts();
+//		sScriptManager.PCall("update", LARG_END);
+//		/*sScriptManager.PCall("update", LARG_END);
+//		i++;
+//		if (i==100)
+//		{
+//			sScriptManager.ReloadAllScripts();
+//		}
+//		if (i==103)
+//		{
+//			break;
+//		}*/
+//	}
+//
+//	getchar(); 
+//}
 
 
 //
@@ -229,3 +230,10 @@ void main()
 //
 //	getchar(); 
 //}
+
+
+//模板测试
+int main(int argc,char *argv[])
+{
+
+}
